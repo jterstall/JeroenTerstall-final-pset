@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/search_layout">
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:hint="Song name"
+        android:layout_centerHorizontal="true"
+        android:inputType="text"
+        android:imeOptions="actionGo"
+        android:layout_marginTop="30dp"
+        android:id="@+id/query"/>
+
+    <android.support.v7.widget.AppCompatSpinner
+        android:layout_width="wrap_content"
+        android:layout_below="@id/query"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/search_options_spinner"
+        style="@style/Widget.AppCompat.Spinner.Underlined">
+    </android.support.v7.widget.AppCompatSpinner>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Search"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="30dp"
+        android:id="@+id/search_button"
+        style="@android:style/Holo.SegmentedButton"/>
+
+</RelativeLayout>

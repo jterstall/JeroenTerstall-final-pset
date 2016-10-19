@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "414339456284",
+    "firebase_url": "https://final-pset.firebaseio.com",
+    "project_id": "final-pset",
+    "storage_bucket": "final-pset.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:414339456284:android:0f6b9ffa357bb5ed",
+        "android_client_info": {
+          "package_name": "terstall.final_pset_jeroenterstall"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "414339456284-1g6abv346tdi59jn1u2gbi2o6f50mhsc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "terstall.final_pset_jeroenterstall",
+            "certificate_hash": "E2882DB0CAF8547BB980D410C38AC2F182F0356A"
+          }
+        },
+        {
+          "client_id": "414339456284-vufehku2s02a2ke0smd3h0rlj1pjmave.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBy7n_hR1e9zm7qg5ehxk72uZ54mI45R08"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "414339456284-vufehku2s02a2ke0smd3h0rlj1pjmave.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
