@@ -5,15 +5,15 @@
         <item
             android:id="@+id/nav_home_screen"
             android:icon="@drawable/ic_home_black_24dp"
-            android:title="Home"/>
+            android:title="@string/nav_home"/>
         <item
             android:id="@+id/nav_search_function"
             android:icon="@drawable/ic_menu_search"
-            android:title="Search Music"/>
+            android:title="@string/nav_search"/>
         <item
             android:id="@+id/nav_music_collection"
             android:icon="@drawable/ic_audiotrack_black_24dp"
-            android:title="Your Collection"/>
+            android:title="@string/nav_collection"/>
     </group>
 
 </menu>

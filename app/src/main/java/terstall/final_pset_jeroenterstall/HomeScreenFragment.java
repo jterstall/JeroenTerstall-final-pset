@@ -10,12 +10,11 @@ import android.view.ViewGroup;
 
 public class HomeScreenFragment extends Fragment
 {
-    private View mView;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        mView = inflater.inflate(R.layout.home_screen_layout, container, false);
+        View mView = inflater.inflate(R.layout.home_screen_layout, container, false);
         return mView;
     }
 }

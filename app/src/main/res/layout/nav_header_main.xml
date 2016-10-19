@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:text="Music Collection"
+        android:text="@string/nav_header_title"
         android:textColor="@android:color/white"
         android:textAlignment="center"
         android:layout_gravity="center_horizontal|center_vertical"

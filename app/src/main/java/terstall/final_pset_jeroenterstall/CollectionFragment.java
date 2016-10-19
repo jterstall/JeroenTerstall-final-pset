@@ -10,12 +10,11 @@ import android.view.ViewGroup;
 
 public class CollectionFragment extends Fragment
 {
-    private View mView;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        mView = inflater.inflate(R.layout.collection_layout, container, false);
+        View mView = inflater.inflate(R.layout.collection_layout, container, false);
         return mView;
     }
 }
