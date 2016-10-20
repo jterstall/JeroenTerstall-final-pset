@@ -19,8 +19,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.concurrent.ExecutionException;
 
 
@@ -53,7 +55,7 @@ public class ShowAlbumInfoFragment extends Fragment
             retrieveAlbumData();
             setAlbumData();
         }
-        catch (MalformedURLException | InterruptedException | ExecutionException | JSONException e)
+        catch (MalformedURLException | InterruptedException | ExecutionException | JSONException | UnsupportedEncodingException e)
         {
             e.printStackTrace();
         }
@@ -75,10 +77,13 @@ public class ShowAlbumInfoFragment extends Fragment
         }
     }
 
-    private void retrieveAlbumData() throws MalformedURLException, ExecutionException, InterruptedException, JSONException
+    private void retrieveAlbumData() throws MalformedURLException, ExecutionException, InterruptedException, JSONException, UnsupportedEncodingException
     {
-        URL url = new URL(album_url + "artist=" + artist.replaceAll(" ", "+") + "&album=" + album.replaceAll(" ", "+") + api_key);
-        album_data = new RetrieveApiInformationTask().execute(url).get().getJSONObject(RetrieveApiInformationTask.JSON_ALBUM);
+        artist = URLEncoder.encode(artist, "UTF-8");
+        album = URLEncoder.encode(album, "UTF-8");
+        URL url = new URL(album_url + "artist=" + artist + "&album=" + album + api_key);
+        System.out.println(url);
+        album_data = new RetrieveApiInformationTask().execute(url).get().getJSONObject(RetrieveApiInformationTask.JSON_ARTIST);
     }
 
     private void setAlbumData() throws JSONException
@@ -95,7 +100,7 @@ public class ShowAlbumInfoFragment extends Fragment
         albumView.setText((String) album_data.get(RetrieveApiInformationTask.JSON_NAME));
         artistView.setText((String) album_data.get(RetrieveApiInformationTask.JSON_ARTIST));
 
-        //TODO release date
+
         // Set summary with clickable links
         summaryView.setClickable(true);
         summaryView.setMovementMethod(LinkMovementMethod.getInstance());
@@ -103,7 +108,14 @@ public class ShowAlbumInfoFragment extends Fragment
 
         // Then set image
         String image_url = (String) album_data.getJSONArray(RetrieveApiInformationTask.JSON_IMAGE).getJSONObject(RetrieveApiInformationTask.JSON_IMAGE_SIZE).get(RetrieveApiInformationTask.JSON_IMAGE_URL);
-        Picasso.with(activity).load(image_url).into(imageView);
+        if(!image_url.isEmpty())
+        {
+            Picasso.with(activity).load(image_url).into(imageView);
+        }
+        else
+        {
+            imageView.setImageResource(R.drawable.no_image);
+        }
 
         // set the tracks
         String track_content = "";

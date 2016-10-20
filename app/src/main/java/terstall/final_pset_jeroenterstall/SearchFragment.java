@@ -22,8 +22,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.concurrent.ExecutionException;
 
     public class SearchFragment extends Fragment implements AdapterView.OnItemSelectedListener, View.OnClickListener
@@ -107,7 +109,14 @@ import java.util.concurrent.ExecutionException;
         }
         else
         {
-            query_input = query_input.replaceAll(" ", "+");
+            try
+            {
+                query_input = URLEncoder.encode(query_input, "UTF-8");
+            }
+            catch (UnsupportedEncodingException e)
+            {
+                e.printStackTrace();
+            }
             JSONArray results = null;
             String type = null;
             switch(spinner.getSelectedItemPosition())
@@ -117,7 +126,6 @@ import java.util.concurrent.ExecutionException;
                     try
                     {
                         URL url = new URL(track_url + query_input + api_key);
-                        System.out.println(url);
                         JSONObject json = new RetrieveApiInformationTask().execute(url).get();
                         results = (json.getJSONObject(RetrieveApiInformationTask.JSON_RESULT).getJSONObject(RetrieveApiInformationTask.JSON_TRACK_MATCH).getJSONArray(RetrieveApiInformationTask.JSON_TRACK));
                         type = MainActivity.TRACK_TYPE;
