@@ -13,6 +13,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -31,15 +37,19 @@ public class ShowAlbumInfoFragment extends Fragment
     private static String api_key = "&api_key=09668701cd6843de7d1ebaed460ae800&format=json";
     private static String album_url = "http://ws.audioscrobbler.com/2.0/?method=album.getInfo&";
 
+    Album mAlbum;
+
     View mView;
 
     MainActivity activity;
 
-    String type;
     String album;
     String artist;
 
     JSONObject album_data;
+
+    FirebaseDatabase db;
+    DatabaseReference ref;
 
     @Nullable
     @Override
@@ -58,6 +68,8 @@ public class ShowAlbumInfoFragment extends Fragment
         {
             e.printStackTrace();
         }
+        connectDB();
+        setAddIconState();
         setAddCollectionListener();
         return mView;
     }
@@ -95,15 +107,19 @@ public class ShowAlbumInfoFragment extends Fragment
         TextView tagsView = (TextView) mView.findViewById(R.id.album_info_tags);
         ImageView imageView = (ImageView) mView.findViewById(R.id.album_info_image);
 
-        // Set views with correct values, first simple one liners
-        albumView.setText((String) album_data.get(RetrieveApiInformationTask.JSON_NAME));
-        artistView.setText((String) album_data.get(RetrieveApiInformationTask.JSON_ARTIST));
+        // Set views with correct values
+        String album = (String) album_data.get(RetrieveApiInformationTask.JSON_NAME);
+        albumView.setText(album);
+
+        String artist = (String) album_data.get(RetrieveApiInformationTask.JSON_ARTIST);
+        artistView.setText(artist);
 
 
         // Set summary with clickable links
+        String summary = (String) album_data.getJSONObject(RetrieveApiInformationTask.JSON_WIKI).get(RetrieveApiInformationTask.JSON_SUMMARY);
         summaryView.setClickable(true);
         summaryView.setMovementMethod(LinkMovementMethod.getInstance());
-        summaryView.setText(Html.fromHtml((String) album_data.getJSONObject(RetrieveApiInformationTask.JSON_WIKI).get(RetrieveApiInformationTask.JSON_SUMMARY)));
+        summaryView.setText(Html.fromHtml(summary));
 
         // Then set image
         String image_url = (String) album_data.getJSONArray(RetrieveApiInformationTask.JSON_IMAGE).getJSONObject(RetrieveApiInformationTask.JSON_IMAGE_SIZE).get(RetrieveApiInformationTask.JSON_IMAGE_URL);
@@ -140,23 +156,110 @@ public class ShowAlbumInfoFragment extends Fragment
             }
         }
         tagsView.setText(tags_content);
+
+        String url = (String) album_data.get(RetrieveApiInformationTask.JSON_URL);
+
+        mAlbum = new Album(album, artist, track_content, summary, tags_content, image_url, url);
+    }
+
+    private void connectDB()
+    {
+        final ImageView add = (ImageView) mView.findViewById(R.id.album_info_add);
+        db = FirebaseDatabase.getInstance();
+        ref = db.getReference(RetrieveApiInformationTask.JSON_ALBUM);
+        ref.addChildEventListener(new ChildEventListener()
+        {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s)
+            {
+                add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s)
+            {
+                add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot)
+            {
+                add.setImageResource(R.drawable.ic_playlist_add_white_18dp);
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s)
+            {
+                System.out.println("MOVED");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+                System.out.println("CANCELLED");
+            }
+        });
     }
 
     private void setAddCollectionListener()
     {
         ImageView add = (ImageView) mView.findViewById(R.id.album_info_add);
+        final String url_id = mAlbum.getUrl().replaceAll("[./#$\\[\\]]", ",");
         add.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                addToCollection();
+                final DatabaseReference childRef = ref.child(url_id);
+                childRef.addListenerForSingleValueEvent(new ValueEventListener()
+                {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot)
+                    {
+                        if(dataSnapshot.getValue() == null)
+                        {
+                            childRef.setValue(mAlbum);
+                        }
+                        else
+                        {
+                            childRef.removeValue();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError)
+                    {
+                        System.out.println("CANCELLED");
+                    }
+                });
             }
         });
     }
 
-    private void addToCollection()
+    private void setAddIconState()
     {
-        System.out.println("CLICK");
+        final ImageView add = (ImageView) mView.findViewById(R.id.album_info_add);
+        String url_id = mAlbum.getUrl().replaceAll("[./#$\\[\\]]", ",");
+        final DatabaseReference childRef = ref.child(url_id);
+        childRef.addListenerForSingleValueEvent(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                if(dataSnapshot.getValue() == null)
+                {
+                    add.setImageResource(R.drawable.ic_playlist_add_white_18dp);
+                }
+                else
+                {
+                    add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+                System.out.println("CANCELLED");
+            }
+        });
     }
 }

@@ -13,6 +13,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -37,8 +43,12 @@ public class ShowArtistInfoFragment extends Fragment
 
     MainActivity activity;
 
-    String type;
     String artist;
+
+    FirebaseDatabase db;
+    DatabaseReference ref;
+
+    Artist mArtist;
 
     @Nullable
     @Override
@@ -56,6 +66,8 @@ public class ShowArtistInfoFragment extends Fragment
         {
             e.printStackTrace();
         }
+        connectDB();
+        setAddIconState();
         setAddCollectionListener();
         return mView;
     }
@@ -91,12 +103,14 @@ public class ShowArtistInfoFragment extends Fragment
         ImageView imageView = (ImageView) mView.findViewById(R.id.artist_info_image);
 
         // Set views with correct values, first simple one liners
-        artistView.setText((String) artist_data.get(RetrieveApiInformationTask.JSON_NAME));
+        String artist = (String) artist_data.get(RetrieveApiInformationTask.JSON_NAME);
+        artistView.setText(artist);
 
         // Set summary with clickable links
+        String summary = (String) artist_data.getJSONObject(RetrieveApiInformationTask.JSON_BIO).get(RetrieveApiInformationTask.JSON_SUMMARY);
         summaryView.setClickable(true);
         summaryView.setMovementMethod(LinkMovementMethod.getInstance());
-        summaryView.setText(Html.fromHtml((String) artist_data.getJSONObject(RetrieveApiInformationTask.JSON_BIO).get(RetrieveApiInformationTask.JSON_SUMMARY)));
+        summaryView.setText(Html.fromHtml(summary));
 
         // Then set image
         String image_url = (String) artist_data.getJSONArray(RetrieveApiInformationTask.JSON_IMAGE).getJSONObject(RetrieveApiInformationTask.JSON_IMAGE_SIZE).get(RetrieveApiInformationTask.JSON_IMAGE_URL);
@@ -125,23 +139,110 @@ public class ShowArtistInfoFragment extends Fragment
         }
         tagsView.setText(tags_content);
 
+        String url = (String) artist_data.get(RetrieveApiInformationTask.JSON_URL);
+
+        mArtist = new Artist(artist, summary, tags_content, image_url, url);
+
+    }
+
+    private void connectDB()
+    {
+        final ImageView add = (ImageView) mView.findViewById(R.id.artist_info_add);
+        db = FirebaseDatabase.getInstance();
+        ref = db.getReference(RetrieveApiInformationTask.JSON_ARTIST);
+        ref.addChildEventListener(new ChildEventListener()
+        {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s)
+            {
+                add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s)
+            {
+                add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot)
+            {
+                add.setImageResource(R.drawable.ic_playlist_add_white_18dp);
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s)
+            {
+                System.out.println("MOVED");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+                System.out.println("CANCELLED");
+            }
+        });
     }
 
     private void setAddCollectionListener()
     {
         ImageView add = (ImageView) mView.findViewById(R.id.artist_info_add);
+        final String url_id = mArtist.getUrl().replaceAll("[./#$\\[\\]]", ",");
         add.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                addToCollection();
+                final DatabaseReference childRef = ref.child(url_id);
+                childRef.addListenerForSingleValueEvent(new ValueEventListener()
+                {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot)
+                    {
+                        if(dataSnapshot.getValue() == null)
+                        {
+                            childRef.setValue(mArtist);
+                        }
+                        else
+                        {
+                            childRef.removeValue();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError)
+                    {
+                        System.out.println("CANCELLED");
+                    }
+                });
             }
         });
     }
 
-    private void addToCollection()
+    private void setAddIconState()
     {
-        System.out.println("CLICK");
+        final ImageView add = (ImageView) mView.findViewById(R.id.artist_info_add);
+        String url_id = mArtist.getUrl().replaceAll("[./#$\\[\\]]", ",");
+        final DatabaseReference childRef = ref.child(url_id);
+        childRef.addListenerForSingleValueEvent(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                if(dataSnapshot.getValue() == null)
+                {
+                    add.setImageResource(R.drawable.ic_playlist_add_white_18dp);
+                }
+                else
+                {
+                    add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+                System.out.println("CANCELLED");
+            }
+        });
     }
 }

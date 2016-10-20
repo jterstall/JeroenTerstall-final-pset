@@ -4,9 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/collection_layout">
-
-    <TextView
+    <ListView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Collection Layout"/>
+        android:layout_height="wrap_content"
+        android:id="@+id/collection_list">
+
+    </ListView>
 </RelativeLayout>

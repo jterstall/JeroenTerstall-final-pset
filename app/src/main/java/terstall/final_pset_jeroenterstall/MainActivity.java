@@ -159,4 +159,25 @@ public class MainActivity extends AppCompatActivity
         }
         currentMenu.push(SEARCH_STACK_INDEX);
     }
+
+    public void goToTrackCollection()
+    {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, new TrackCollectionFragment()).addToBackStack(null).commit();
+        currentMenu.push(COLLECTION_STACK_INDEX);
+    }
+
+    public void goToArtistCollection()
+    {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, new ArtistCollectionFragment()).addToBackStack(null).commit();
+        currentMenu.push(COLLECTION_STACK_INDEX);
+    }
+
+    public void goToAlbumCollection()
+    {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, new AlbumCollectionFragment()).addToBackStack(null).commit();
+        currentMenu.push(COLLECTION_STACK_INDEX);
+    }
 }

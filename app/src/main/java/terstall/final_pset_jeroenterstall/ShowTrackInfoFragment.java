@@ -18,7 +18,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
@@ -71,6 +70,7 @@ public class ShowTrackInfoFragment extends Fragment
             e.printStackTrace();
         }
         connectDB();
+        setAddIconState();
         setAddCollectionListener();
         return mView;
     }
@@ -149,7 +149,7 @@ public class ShowTrackInfoFragment extends Fragment
     {
         final ImageView add = (ImageView) mView.findViewById(R.id.track_info_add);
         db = FirebaseDatabase.getInstance();
-        ref = db.getReference("tracks");
+        ref = db.getReference(RetrieveApiInformationTask.JSON_TRACK);
         ref.addChildEventListener(new ChildEventListener()
         {
             @Override
@@ -161,7 +161,7 @@ public class ShowTrackInfoFragment extends Fragment
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s)
             {
-                System.out.println("CHANGED");
+                add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
             }
 
             @Override
@@ -187,12 +187,61 @@ public class ShowTrackInfoFragment extends Fragment
     private void setAddCollectionListener()
     {
         ImageView add = (ImageView) mView.findViewById(R.id.track_info_add);
+        final String url_id = mTrack.getUrl().replaceAll("[./#$\\[\\]]", ",");
         add.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                System.out.println(ref.orderByChild("url").equalTo(mTrack.getUrl()));
+                final DatabaseReference childRef = ref.child(url_id);
+                childRef.addListenerForSingleValueEvent(new ValueEventListener()
+                {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot)
+                    {
+                        if(dataSnapshot.getValue() == null)
+                        {
+                            childRef.setValue(mTrack);
+                        }
+                        else
+                        {
+                            childRef.removeValue();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError)
+                    {
+                        System.out.println("CANCELLED");
+                    }
+                });
+            }
+        });
+    }
+
+    private void setAddIconState()
+    {
+        final ImageView add = (ImageView) mView.findViewById(R.id.track_info_add);
+        String url_id = mTrack.getUrl().replaceAll("[./#$\\[\\]]", ",");
+        final DatabaseReference childRef = ref.child(url_id);
+        childRef.addListenerForSingleValueEvent(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                if(dataSnapshot.getValue() == null)
+                {
+                    add.setImageResource(R.drawable.ic_playlist_add_white_18dp);
+                }
+                else
+                {
+                    add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+                System.out.println("CANCELLED");
             }
         });
     }
