@@ -30,6 +30,7 @@ class RetrieveApiInformationTask extends AsyncTask<URL, Void, JSONObject>
     static final String JSON_TOPTAGS = "toptags";
     static final String JSON_TAGS = "tags";
     static final String JSON_TAG = "tag";
+    static final String JSON_URL = "url";
     static final String JSON_BIO = "bio";
     static final int JSON_IMAGE_SIZE = 2; // 0 = small, 1 = medium, 2 = large, 3 = extra large
 

@@ -46,7 +46,6 @@ public class ShowArtistInfoFragment extends Fragment
     {
         mView = inflater.inflate(R.layout.show_artist_info_layout, container, false);
         Bundle args = getArguments();
-        type = args.getString("type");
         artist = args.getString("artist");
         try
         {
@@ -57,6 +56,7 @@ public class ShowArtistInfoFragment extends Fragment
         {
             e.printStackTrace();
         }
+        setAddCollectionListener();
         return mView;
     }
 
@@ -79,7 +79,6 @@ public class ShowArtistInfoFragment extends Fragment
     {
         artist = URLEncoder.encode(artist, "UTF-8");
         URL url = new URL(artist_url + artist + api_key);
-        System.out.println(url);
         artist_data = new RetrieveApiInformationTask().execute(url).get().getJSONObject(RetrieveApiInformationTask.JSON_ARTIST);
     }
 
@@ -126,5 +125,23 @@ public class ShowArtistInfoFragment extends Fragment
         }
         tagsView.setText(tags_content);
 
+    }
+
+    private void setAddCollectionListener()
+    {
+        ImageView add = (ImageView) mView.findViewById(R.id.artist_info_add);
+        add.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                addToCollection();
+            }
+        });
+    }
+
+    private void addToCollection()
+    {
+        System.out.println("CLICK");
     }
 }

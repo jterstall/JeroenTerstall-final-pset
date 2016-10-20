@@ -129,7 +129,6 @@ public class MainActivity extends AppCompatActivity
     {
         FragmentManager fragmentManager = getSupportFragmentManager();
         Bundle args = new Bundle();
-        args.putString("type", type);
         if(type.equals(TRACK_TYPE))
         {
             String track = (String) query_result.get(RetrieveApiInformationTask.JSON_NAME);

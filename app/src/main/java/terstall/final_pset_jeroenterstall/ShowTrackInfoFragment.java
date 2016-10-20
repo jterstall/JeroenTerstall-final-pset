@@ -13,7 +13,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,25 +37,30 @@ public class ShowTrackInfoFragment extends Fragment
     private static String api_key = "&api_key=09668701cd6843de7d1ebaed460ae800&format=json";
     private static String track_url = "http://ws.audioscrobbler.com/2.0/?method=track.getInfo&";
 
+    Track mTrack;
+
     View mView;
 
     JSONObject track_data;
 
     MainActivity activity;
 
-    String type;
     String track;
     String artist;
+
+    FirebaseDatabase db;
+    DatabaseReference ref;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         mView = inflater.inflate(R.layout.show_track_info_layout, container, false);
+
         Bundle args = getArguments();
-        type = args.getString("type");
         artist = args.getString("artist");
         track = args.getString("track");
+
         try
         {
             retrieveArtistData();
@@ -59,6 +70,8 @@ public class ShowTrackInfoFragment extends Fragment
         {
             e.printStackTrace();
         }
+        connectDB();
+        setAddCollectionListener();
         return mView;
     }
 
@@ -82,7 +95,6 @@ public class ShowTrackInfoFragment extends Fragment
         track = URLEncoder.encode(track, "UTF-8");
         artist = URLEncoder.encode(artist, "UTF-8");
         URL url = new URL(track_url + "track=" + track+ "&artist=" + artist + api_key);
-        System.out.println(url);
         track_data = new RetrieveApiInformationTask().execute(url).get().getJSONObject(RetrieveApiInformationTask.JSON_TRACK);
     }
 
@@ -96,12 +108,14 @@ public class ShowTrackInfoFragment extends Fragment
         ImageView imageView = (ImageView) mView.findViewById(R.id.track_info_image);
 
         // Set views with correct values, first simple one liners
+        String image_url = "";
         imageView.setImageResource(R.drawable.no_image);
-        trackView.setText((String) track_data.get(RetrieveApiInformationTask.JSON_NAME));
-        artistView.setText((String) track_data.getJSONObject(RetrieveApiInformationTask.JSON_ARTIST).get(RetrieveApiInformationTask.JSON_NAME));
 
-        // Set artists
-        System.out.println(track_data.getJSONObject(RetrieveApiInformationTask.JSON_ARTIST));
+        String track = (String) track_data.get(RetrieveApiInformationTask.JSON_NAME);
+        trackView.setText(track);
+
+        String artist = (String) track_data.getJSONObject(RetrieveApiInformationTask.JSON_ARTIST).get(RetrieveApiInformationTask.JSON_NAME);
+        artistView.setText(artist);
 
         // set the tags
         String tags_content = "";
@@ -120,12 +134,66 @@ public class ShowTrackInfoFragment extends Fragment
         tagsView.setText(tags_content);
 
         // Set summary with clickable links
+        String summary = (String) track_data.getJSONObject(RetrieveApiInformationTask.JSON_WIKI).get(RetrieveApiInformationTask.JSON_SUMMARY);
         summaryView.setClickable(true);
         summaryView.setMovementMethod(LinkMovementMethod.getInstance());
-        summaryView.setText(Html.fromHtml((String) track_data.getJSONObject(RetrieveApiInformationTask.JSON_WIKI).get(RetrieveApiInformationTask.JSON_SUMMARY)));
+        summaryView.setText(Html.fromHtml(summary));
 
+        String url = (String) track_data.get(RetrieveApiInformationTask.JSON_URL);
 
+        // Create Track Object
+        mTrack = new Track(track, artist, summary, tags_content, image_url, url);
+    }
 
+    private void connectDB()
+    {
+        final ImageView add = (ImageView) mView.findViewById(R.id.track_info_add);
+        db = FirebaseDatabase.getInstance();
+        ref = db.getReference("tracks");
+        ref.addChildEventListener(new ChildEventListener()
+        {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s)
+            {
+                add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
+            }
 
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s)
+            {
+                System.out.println("CHANGED");
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot)
+            {
+                add.setImageResource(R.drawable.ic_playlist_add_white_18dp);
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s)
+            {
+                System.out.println("MOVED");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+                System.out.println("CANCELLED");
+            }
+        });
+    }
+
+    private void setAddCollectionListener()
+    {
+        ImageView add = (ImageView) mView.findViewById(R.id.track_info_add);
+        add.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                System.out.println(ref.orderByChild("url").equalTo(mTrack.getUrl()));
+            }
+        });
     }
 }

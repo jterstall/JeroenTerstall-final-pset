@@ -47,7 +47,6 @@ public class ShowAlbumInfoFragment extends Fragment
     {
         mView = inflater.inflate(R.layout.show_album_info_layout, container, false);
         Bundle args = getArguments();
-        type = args.getString("type");
         artist = args.getString("artist");
         album = args.getString("album");
         try
@@ -59,6 +58,7 @@ public class ShowAlbumInfoFragment extends Fragment
         {
             e.printStackTrace();
         }
+        setAddCollectionListener();
         return mView;
     }
 
@@ -82,8 +82,7 @@ public class ShowAlbumInfoFragment extends Fragment
         artist = URLEncoder.encode(artist, "UTF-8");
         album = URLEncoder.encode(album, "UTF-8");
         URL url = new URL(album_url + "artist=" + artist + "&album=" + album + api_key);
-        System.out.println(url);
-        album_data = new RetrieveApiInformationTask().execute(url).get().getJSONObject(RetrieveApiInformationTask.JSON_ARTIST);
+        album_data = new RetrieveApiInformationTask().execute(url).get().getJSONObject(RetrieveApiInformationTask.JSON_ALBUM);
     }
 
     private void setAlbumData() throws JSONException
@@ -141,6 +140,23 @@ public class ShowAlbumInfoFragment extends Fragment
             }
         }
         tagsView.setText(tags_content);
+    }
 
+    private void setAddCollectionListener()
+    {
+        ImageView add = (ImageView) mView.findViewById(R.id.album_info_add);
+        add.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                addToCollection();
+            }
+        });
+    }
+
+    private void addToCollection()
+    {
+        System.out.println("CLICK");
     }
 }
