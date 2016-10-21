@@ -39,6 +39,8 @@ public class ShowAlbumInfoFragment extends Fragment
 
     Album mAlbum;
 
+    boolean firstClick;
+
     View mView;
 
     MainActivity activity;
@@ -69,8 +71,8 @@ public class ShowAlbumInfoFragment extends Fragment
             e.printStackTrace();
         }
         connectDB();
-        setAddIconState();
-        setAddCollectionListener();
+        firstClick = true;
+        setDBListeners();
         return mView;
     }
 
@@ -116,7 +118,11 @@ public class ShowAlbumInfoFragment extends Fragment
 
 
         // Set summary with clickable links
-        String summary = (String) album_data.getJSONObject(RetrieveApiInformationTask.JSON_WIKI).get(RetrieveApiInformationTask.JSON_SUMMARY);
+        String summary = "";
+        if(album_data.has(RetrieveApiInformationTask.JSON_WIKI))
+        {
+            summary = (String) album_data.getJSONObject(RetrieveApiInformationTask.JSON_WIKI).get(RetrieveApiInformationTask.JSON_SUMMARY);
+        }
         summaryView.setClickable(true);
         summaryView.setMovementMethod(LinkMovementMethod.getInstance());
         summaryView.setText(Html.fromHtml(summary));
@@ -164,46 +170,13 @@ public class ShowAlbumInfoFragment extends Fragment
 
     private void connectDB()
     {
-        final ImageView add = (ImageView) mView.findViewById(R.id.album_info_add);
         db = FirebaseDatabase.getInstance();
         ref = db.getReference(RetrieveApiInformationTask.JSON_ALBUM);
-        ref.addChildEventListener(new ChildEventListener()
-        {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s)
-            {
-                add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s)
-            {
-                add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot)
-            {
-                add.setImageResource(R.drawable.ic_playlist_add_white_18dp);
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s)
-            {
-                System.out.println("MOVED");
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError)
-            {
-                System.out.println("CANCELLED");
-            }
-        });
     }
 
-    private void setAddCollectionListener()
+    private void setDBListeners()
     {
-        ImageView add = (ImageView) mView.findViewById(R.id.album_info_add);
+        final ImageView add = (ImageView) mView.findViewById(R.id.album_info_add);
         final String url_id = mAlbum.getUrl().replaceAll("[./#$\\[\\]]", ",");
         add.setOnClickListener(new View.OnClickListener()
         {
@@ -218,11 +191,29 @@ public class ShowAlbumInfoFragment extends Fragment
                     {
                         if(dataSnapshot.getValue() == null)
                         {
-                            childRef.setValue(mAlbum);
+                            if(!firstClick)
+                            {
+                                childRef.setValue(mAlbum);
+                                add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
+                            }
+                            else
+                            {
+                                add.setImageResource(R.drawable.ic_playlist_add_white_18dp);
+                            }
+                            firstClick = false;
                         }
                         else
                         {
-                            childRef.removeValue();
+                            if(!firstClick)
+                            {
+                                childRef.removeValue();
+                                add.setImageResource(R.drawable.ic_playlist_add_white_18dp);
+                            }
+                            else
+                            {
+                                add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
+                            }
+                            firstClick = false;
                         }
                     }
 
@@ -234,32 +225,6 @@ public class ShowAlbumInfoFragment extends Fragment
                 });
             }
         });
-    }
-
-    private void setAddIconState()
-    {
-        final ImageView add = (ImageView) mView.findViewById(R.id.album_info_add);
-        String url_id = mAlbum.getUrl().replaceAll("[./#$\\[\\]]", ",");
-        final DatabaseReference childRef = ref.child(url_id);
-        childRef.addListenerForSingleValueEvent(new ValueEventListener()
-        {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot)
-            {
-                if(dataSnapshot.getValue() == null)
-                {
-                    add.setImageResource(R.drawable.ic_playlist_add_white_18dp);
-                }
-                else
-                {
-                    add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError)
-            {
-                System.out.println("CANCELLED");
-            }
-        });
+        add.performClick();
     }
 }

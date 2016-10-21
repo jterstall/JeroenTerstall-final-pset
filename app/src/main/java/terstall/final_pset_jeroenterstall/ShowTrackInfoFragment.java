@@ -38,6 +38,8 @@ public class ShowTrackInfoFragment extends Fragment
 
     Track mTrack;
 
+    boolean firstClick;
+
     View mView;
 
     JSONObject track_data;
@@ -70,8 +72,11 @@ public class ShowTrackInfoFragment extends Fragment
             e.printStackTrace();
         }
         connectDB();
-        setAddIconState();
-        setAddCollectionListener();
+
+        // Flag for setting image resource on first run
+        firstClick = true;
+
+        setDBListeners();
         return mView;
     }
 
@@ -134,12 +139,17 @@ public class ShowTrackInfoFragment extends Fragment
         tagsView.setText(tags_content);
 
         // Set summary with clickable links
-        String summary = (String) track_data.getJSONObject(RetrieveApiInformationTask.JSON_WIKI).get(RetrieveApiInformationTask.JSON_SUMMARY);
+        String summary = "";
+        if(track_data.has(RetrieveApiInformationTask.JSON_WIKI))
+        {
+            summary = (String) track_data.getJSONObject(RetrieveApiInformationTask.JSON_WIKI).get(RetrieveApiInformationTask.JSON_SUMMARY);
+        }
         summaryView.setClickable(true);
         summaryView.setMovementMethod(LinkMovementMethod.getInstance());
         summaryView.setText(Html.fromHtml(summary));
 
         String url = (String) track_data.get(RetrieveApiInformationTask.JSON_URL);
+        System.out.println(url);
 
         // Create Track Object
         mTrack = new Track(track, artist, summary, tags_content, image_url, url);
@@ -147,46 +157,13 @@ public class ShowTrackInfoFragment extends Fragment
 
     private void connectDB()
     {
-        final ImageView add = (ImageView) mView.findViewById(R.id.track_info_add);
         db = FirebaseDatabase.getInstance();
         ref = db.getReference(RetrieveApiInformationTask.JSON_TRACK);
-        ref.addChildEventListener(new ChildEventListener()
-        {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s)
-            {
-                add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s)
-            {
-                add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot)
-            {
-                add.setImageResource(R.drawable.ic_playlist_add_white_18dp);
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s)
-            {
-                System.out.println("MOVED");
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError)
-            {
-                System.out.println("CANCELLED");
-            }
-        });
     }
 
-    private void setAddCollectionListener()
+    private void setDBListeners()
     {
-        ImageView add = (ImageView) mView.findViewById(R.id.track_info_add);
+        final ImageView add = (ImageView) mView.findViewById(R.id.track_info_add);
         final String url_id = mTrack.getUrl().replaceAll("[./#$\\[\\]]", ",");
         add.setOnClickListener(new View.OnClickListener()
         {
@@ -201,11 +178,29 @@ public class ShowTrackInfoFragment extends Fragment
                     {
                         if(dataSnapshot.getValue() == null)
                         {
-                            childRef.setValue(mTrack);
+                            if(!firstClick)
+                            {
+                                childRef.setValue(mTrack);
+                                add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
+                            }
+                            else
+                            {
+                                add.setImageResource(R.drawable.ic_playlist_add_white_18dp);
+                            }
+                            firstClick = false;
                         }
                         else
                         {
-                            childRef.removeValue();
+                            if(!firstClick)
+                            {
+                                childRef.removeValue();
+                                add.setImageResource(R.drawable.ic_playlist_add_white_18dp);
+                            }
+                            else
+                            {
+                                add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
+                            }
+                            firstClick = false;
                         }
                     }
 
@@ -217,32 +212,6 @@ public class ShowTrackInfoFragment extends Fragment
                 });
             }
         });
-    }
-
-    private void setAddIconState()
-    {
-        final ImageView add = (ImageView) mView.findViewById(R.id.track_info_add);
-        String url_id = mTrack.getUrl().replaceAll("[./#$\\[\\]]", ",");
-        final DatabaseReference childRef = ref.child(url_id);
-        childRef.addListenerForSingleValueEvent(new ValueEventListener()
-        {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot)
-            {
-                if(dataSnapshot.getValue() == null)
-                {
-                    add.setImageResource(R.drawable.ic_playlist_add_white_18dp);
-                }
-                else
-                {
-                    add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError)
-            {
-                System.out.println("CANCELLED");
-            }
-        });
+        add.performClick();
     }
 }
