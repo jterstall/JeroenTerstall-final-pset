@@ -41,4 +41,7 @@ class Constants
     static String SEARCH_ARTIST_URL = "http://ws.audioscrobbler.com/2.0/?method=artist.search&artist=";
     static String SEARCH_ALBUM_URL = "http://ws.audioscrobbler.com/2.0/?method=album.search&album=";
     static String SEARCH_TRACK_URL = "http://ws.audioscrobbler.com/2.0/?method=track.search&track=";
+
+    // Reference for database users category
+    static String USERS = "users";
 }

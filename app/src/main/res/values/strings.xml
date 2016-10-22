@@ -11,6 +11,14 @@
     <string name="summary_title">Summary:</string>
     <string name="tracks_title">Tracks:</string>
     <string name="tags_title">Tags:</string>
+    <string name="sign_in">Sign in</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="register_tip">Don\'t have an account? Click this.</string>
+    <string name="username_required">Username (Required)</string>
+    <string name="email_required">Email (Required)</string>
+    <string name="password_required">Password (Required)</string>
+    <string name="register">Register</string>
     <string-array name="search_option">
         <item>Track</item>
         <item>Artist</item>

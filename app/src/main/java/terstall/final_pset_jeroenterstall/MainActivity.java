@@ -10,6 +10,13 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import org.json.JSONArray;
 
@@ -18,31 +25,25 @@ import java.util.Stack;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener
 {
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
     Stack<Integer> currentMenu = new Stack<>();
 
     NavigationView navigationView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
+    protected void onCreate(final Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
 
-        if(savedInstanceState == null)
-        {
-            HomeScreenFragment fragment = new HomeScreenFragment();
-            getSupportFragmentManager().beginTransaction().add(R.id.content_frame, fragment).commit();
-            currentMenu.push(Constants.HOME_STACK_INDEX);
-            navigationView.getMenu().getItem(Constants.HOME_STACK_INDEX).setChecked(true);
-        }
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -50,7 +51,65 @@ public class MainActivity extends AppCompatActivity
 
         navigationView.setNavigationItemSelectedListener(this);
 
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.signOut();
+        mAuthListener = new FirebaseAuth.AuthStateListener()
+        {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth)
+            {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if(user != null)
+                {
+                    drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                    HomeScreenFragment fragment = new HomeScreenFragment();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
+                    currentMenu.push(Constants.HOME_STACK_INDEX);
+                    navigationView.getMenu().getItem(Constants.HOME_STACK_INDEX).setChecked(true);
+                }
+                else
+                {
+                    drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                    SignInFragment fragment = new SignInFragment();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
+                    currentMenu.push(Constants.HOME_STACK_INDEX);
+                    navigationView.getMenu().getItem(Constants.HOME_STACK_INDEX).setChecked(true);
+                }
 
+            }
+        };
+
+
+    }
+
+    public void onStart()
+    {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    public void onStop()
+    {
+        super.onStop();
+        if (mAuthListener != null)
+        {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
+    private void signIn(String email, String password)
+    {
+        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task)
+            {
+                if(!task.isSuccessful())
+                {
+                    Toast.makeText(MainActivity.this, "FAILED SIGN IN", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     @Override
@@ -170,5 +229,12 @@ public class MainActivity extends AppCompatActivity
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, new AlbumCollectionFragment()).addToBackStack(null).commit();
         currentMenu.push(Constants.COLLECTION_STACK_INDEX);
+    }
+
+    public void goToRegisterPage()
+    {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, new RegisterFragment()).addToBackStack(null).commit();
+        currentMenu.push(Constants.HOME_STACK_INDEX);
     }
 }
