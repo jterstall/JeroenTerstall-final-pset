@@ -3,7 +3,6 @@
 
 import android.content.Context;
 import android.os.Bundle;
-import android.renderscript.ScriptGroup;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.KeyEvent;
@@ -36,11 +35,6 @@ import java.util.concurrent.ExecutionException;
     private MainActivity activity;
     private EditText query;
     private Button button;
-
-    private static String api_key = "&api_key=09668701cd6843de7d1ebaed460ae800&format=json";
-    private static String artist_url = "http://ws.audioscrobbler.com/2.0/?method=artist.search&artist=";
-    private static String album_url = "http://ws.audioscrobbler.com/2.0/?method=album.search&album=";
-    private static String track_url = "http://ws.audioscrobbler.com/2.0/?method=track.search&track=";
 
     @Nullable
     @Override
@@ -127,10 +121,10 @@ import java.util.concurrent.ExecutionException;
                 case 0:
                     try
                     {
-                        URL url = new URL(track_url + query_input + api_key);
+                        URL url = new URL(Constants.SEARCH_TRACK_URL + query_input + Constants.API_KEY);
                         JSONObject json = new RetrieveApiInformationTask().execute(url).get();
-                        results = (json.getJSONObject(RetrieveApiInformationTask.JSON_RESULT).getJSONObject(RetrieveApiInformationTask.JSON_TRACK_MATCH).getJSONArray(RetrieveApiInformationTask.JSON_TRACK));
-                        type = MainActivity.TRACK_TYPE;
+                        results = (json.getJSONObject(Constants.JSON_RESULT).getJSONObject(Constants.JSON_TRACK_MATCH).getJSONArray(Constants.JSON_TRACK));
+                        type = Constants.TRACK_TYPE;
                     }
                     catch (MalformedURLException | InterruptedException | JSONException | ExecutionException e)
                     {
@@ -141,10 +135,10 @@ import java.util.concurrent.ExecutionException;
                 case 1:
                     try
                     {
-                        URL url = new URL(artist_url + query_input + api_key);
+                        URL url = new URL(Constants.SEARCH_ARTIST_URL + query_input + Constants.API_KEY);
                         JSONObject json = new RetrieveApiInformationTask().execute(url).get();
-                        results = json.getJSONObject(RetrieveApiInformationTask.JSON_RESULT).getJSONObject(RetrieveApiInformationTask.JSON_ARTIST_MATCH).getJSONArray(RetrieveApiInformationTask.JSON_ARTIST);
-                        type = MainActivity.ARTIST_TYPE;
+                        results = json.getJSONObject(Constants.JSON_RESULT).getJSONObject(Constants.JSON_ARTIST_MATCH).getJSONArray(Constants.JSON_ARTIST);
+                        type = Constants.ARTIST_TYPE;
                     }
                     catch (MalformedURLException | InterruptedException | ExecutionException | JSONException e)
                     {
@@ -155,10 +149,10 @@ import java.util.concurrent.ExecutionException;
                 case 2:
                     try
                     {
-                        URL url = new URL(album_url + query_input + api_key);
+                        URL url = new URL(Constants.SEARCH_ALBUM_URL + query_input + Constants.API_KEY);
                         JSONObject json = new RetrieveApiInformationTask().execute(url).get();
-                        results = json.getJSONObject(RetrieveApiInformationTask.JSON_RESULT).getJSONObject(RetrieveApiInformationTask.JSON_ALBUM_MATCH).getJSONArray(RetrieveApiInformationTask.JSON_ALBUM);
-                        type = MainActivity.ALBUM_TYPE;
+                        results = json.getJSONObject(Constants.JSON_RESULT).getJSONObject(Constants.JSON_ALBUM_MATCH).getJSONArray(Constants.JSON_ALBUM);
+                        type = Constants.ALBUM_TYPE;
                     }
                     catch (MalformedURLException | InterruptedException | JSONException | ExecutionException e)
                     {

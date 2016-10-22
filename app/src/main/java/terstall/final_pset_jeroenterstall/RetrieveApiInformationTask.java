@@ -13,26 +13,6 @@ import java.net.URL;
 // Also stores the JSON tags
 class RetrieveApiInformationTask extends AsyncTask<URL, Void, JSONObject>
 {
-    // Json names
-    static final String JSON_RESULT = "results";
-    static final String JSON_TRACK_MATCH = "trackmatches";
-    static final String JSON_ALBUM_MATCH = "albummatches";
-    static final String JSON_ARTIST_MATCH = "artistmatches";
-    static final String JSON_TRACK = "track";
-    static final String JSON_ALBUM = "album";
-    static final String JSON_ARTIST = "artist";
-    static final String JSON_NAME = "name";
-    static final String JSON_IMAGE = "image";
-    static final String JSON_IMAGE_URL = "#text";
-    static final String JSON_TRACKS = "tracks";
-    static final String JSON_SUMMARY = "summary";
-    static final String JSON_WIKI = "wiki";
-    static final String JSON_TOPTAGS = "toptags";
-    static final String JSON_TAGS = "tags";
-    static final String JSON_TAG = "tag";
-    static final String JSON_URL = "url";
-    static final String JSON_BIO = "bio";
-    static final int JSON_IMAGE_SIZE = 2; // 0 = small, 1 = medium, 2 = large, 3 = extra large
 
     @Override
     protected JSONObject doInBackground(URL... params)

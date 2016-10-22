@@ -32,8 +32,6 @@ import java.util.concurrent.ExecutionException;
 
 public class ShowTrackInfoFragment extends Fragment
 {
-    private static String api_key = "&api_key=09668701cd6843de7d1ebaed460ae800&format=json";
-    private static String track_url = "http://ws.audioscrobbler.com/2.0/?method=track.getInfo&";
 
     Track mTrack;
 
@@ -58,8 +56,8 @@ public class ShowTrackInfoFragment extends Fragment
         mView = inflater.inflate(R.layout.show_track_info_layout, container, false);
 
         Bundle args = getArguments();
-        artist = args.getString(RetrieveApiInformationTask.JSON_ARTIST);
-        track = args.getString(RetrieveApiInformationTask.JSON_TRACK);
+        artist = args.getString(Constants.JSON_ARTIST);
+        track = args.getString(Constants.JSON_TRACK);
 
         try
         {
@@ -98,8 +96,8 @@ public class ShowTrackInfoFragment extends Fragment
     {
         track = URLEncoder.encode(track, "UTF-8");
         artist = URLEncoder.encode(artist, "UTF-8");
-        URL url = new URL(track_url + "track=" + track+ "&artist=" + artist + api_key);
-        track_data = new RetrieveApiInformationTask().execute(url).get().getJSONObject(RetrieveApiInformationTask.JSON_TRACK);
+        URL url = new URL(Constants.GET_TRACK_URL + "track=" + track+ "&artist=" + artist + Constants.API_KEY);
+        track_data = new RetrieveApiInformationTask().execute(url).get().getJSONObject(Constants.JSON_TRACK);
     }
 
     private void setTrackData() throws JSONException
@@ -114,39 +112,39 @@ public class ShowTrackInfoFragment extends Fragment
         // Set views with correct values, first simple one liners
         imageView.setImageResource(R.drawable.no_image);
 
-        String track = (String) track_data.get(RetrieveApiInformationTask.JSON_NAME);
+        String track = (String) track_data.get(Constants.JSON_NAME);
         trackView.setText(track);
 
-        String artist = (String) track_data.getJSONObject(RetrieveApiInformationTask.JSON_ARTIST).get(RetrieveApiInformationTask.JSON_NAME);
+        String artist = (String) track_data.getJSONObject(Constants.JSON_ARTIST).get(Constants.JSON_NAME);
         artistView.setText(artist);
 
         // set the tags
         String tags_content = "";
-        JSONArray tags = track_data.getJSONObject(RetrieveApiInformationTask.JSON_TOPTAGS).getJSONArray(RetrieveApiInformationTask.JSON_TAG);
+        JSONArray tags = track_data.getJSONObject(Constants.JSON_TOPTAGS).getJSONArray(Constants.JSON_TAG);
         for(int i = 0; i < tags.length(); i++)
         {
             if(i == 0)
             {
-                tags_content = (String) tags.getJSONObject(i).get(RetrieveApiInformationTask.JSON_NAME);
+                tags_content = (String) tags.getJSONObject(i).get(Constants.JSON_NAME);
             }
             else
             {
-                tags_content = tags_content + ", " + tags.getJSONObject(i).get(RetrieveApiInformationTask.JSON_NAME);
+                tags_content = tags_content + ", " + tags.getJSONObject(i).get(Constants.JSON_NAME);
             }
         }
         tagsView.setText(tags_content);
 
         // Set summary with clickable links
         String summary = "";
-        if(track_data.has(RetrieveApiInformationTask.JSON_WIKI))
+        if(track_data.has(Constants.JSON_WIKI))
         {
-            summary = (String) track_data.getJSONObject(RetrieveApiInformationTask.JSON_WIKI).get(RetrieveApiInformationTask.JSON_SUMMARY);
+            summary = (String) track_data.getJSONObject(Constants.JSON_WIKI).get(Constants.JSON_SUMMARY);
         }
         summaryView.setClickable(true);
         summaryView.setMovementMethod(LinkMovementMethod.getInstance());
         summaryView.setText(Html.fromHtml(summary));
 
-        String url = (String) track_data.get(RetrieveApiInformationTask.JSON_URL);
+        String url = (String) track_data.get(Constants.JSON_URL);
 
         // Create Track Object
         mTrack = new Track(track, artist, summary, tags_content, url);
@@ -155,7 +153,7 @@ public class ShowTrackInfoFragment extends Fragment
     private void connectDB()
     {
         db = FirebaseDatabase.getInstance();
-        ref = db.getReference(RetrieveApiInformationTask.JSON_TRACK);
+        ref = db.getReference(Constants.JSON_TRACK);
     }
 
     private void setDBListeners()

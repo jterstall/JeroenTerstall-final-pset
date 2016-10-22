@@ -74,13 +74,13 @@ public class ShowQueryResultsFragment extends Fragment
         {
             JSONObject jsonObject = (JSONObject) results.get(i);
             // Get name from JSON
-            namelist.add((String) jsonObject.get(RetrieveApiInformationTask.JSON_NAME));
-            if(!(type.equals(MainActivity.ARTIST_TYPE)))
+            namelist.add((String) jsonObject.get(Constants.JSON_NAME));
+            if(!(type.equals(Constants.ARTIST_TYPE)))
             {
-                artistlist.add((String) jsonObject.get(RetrieveApiInformationTask.JSON_ARTIST));
+                artistlist.add((String) jsonObject.get(Constants.JSON_ARTIST));
             }
             // Get image from JSON
-           urllist.add((String) jsonObject.getJSONArray(RetrieveApiInformationTask.JSON_IMAGE).getJSONObject(RetrieveApiInformationTask.JSON_IMAGE_SIZE).get(RetrieveApiInformationTask.JSON_IMAGE_URL));
+           urllist.add((String) jsonObject.getJSONArray(Constants.JSON_IMAGE).getJSONObject(Constants.JSON_IMAGE_SIZE).get(Constants.JSON_IMAGE_URL));
         }
     }
 
@@ -96,21 +96,21 @@ public class ShowQueryResultsFragment extends Fragment
                 try
                 {
                     JSONObject jObject = results.getJSONObject(position);
-                    String name = (String) jObject.get(RetrieveApiInformationTask.JSON_NAME);
-                    if(type.equals(MainActivity.ARTIST_TYPE))
+                    String name = (String) jObject.get(Constants.JSON_NAME);
+                    if(type.equals(Constants.ARTIST_TYPE))
                     {
-                        activity.goToArtistInfo(name, MainActivity.SEARCH_STACK_INDEX);
+                        activity.goToArtistInfo(name, Constants.SEARCH_STACK_INDEX);
 
                     }
-                    else if (type.equals(MainActivity.TRACK_TYPE))
+                    else if (type.equals(Constants.TRACK_TYPE))
                     {
-                        String artist = (String) jObject.get(RetrieveApiInformationTask.JSON_ARTIST);
-                        activity.goToTrackInfo(name, artist, MainActivity.SEARCH_STACK_INDEX);
+                        String artist = (String) jObject.get(Constants.JSON_ARTIST);
+                        activity.goToTrackInfo(name, artist, Constants.SEARCH_STACK_INDEX);
                     }
-                    else if (type.equals(MainActivity.ALBUM_TYPE))
+                    else if (type.equals(Constants.ALBUM_TYPE))
                     {
-                        String artist = (String) jObject.get(RetrieveApiInformationTask.JSON_ARTIST);
-                        activity.goToAlbumInfo(artist, name, MainActivity.SEARCH_STACK_INDEX);
+                        String artist = (String) jObject.get(Constants.JSON_ARTIST);
+                        activity.goToAlbumInfo(artist, name, Constants.SEARCH_STACK_INDEX);
                     }
                 } catch (JSONException e)
                 {

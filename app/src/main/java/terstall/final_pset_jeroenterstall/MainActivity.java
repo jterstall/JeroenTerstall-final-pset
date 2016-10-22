@@ -18,13 +18,6 @@ import java.util.Stack;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener
 {
-    static String TRACK_TYPE = "Track";
-    static String ARTIST_TYPE = "Artist";
-    static String ALBUM_TYPE = "Album";
-
-    static int SEARCH_STACK_INDEX = 1;
-    static int HOME_STACK_INDEX = 0;
-    static int COLLECTION_STACK_INDEX = 2;
 
     Stack<Integer> currentMenu = new Stack<>();
 
@@ -42,8 +35,8 @@ public class MainActivity extends AppCompatActivity
         {
             HomeScreenFragment fragment = new HomeScreenFragment();
             getSupportFragmentManager().beginTransaction().add(R.id.content_frame, fragment).commit();
-            currentMenu.push(HOME_STACK_INDEX);
-            navigationView.getMenu().getItem(HOME_STACK_INDEX).setChecked(true);
+            currentMenu.push(Constants.HOME_STACK_INDEX);
+            navigationView.getMenu().getItem(Constants.HOME_STACK_INDEX).setChecked(true);
         }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -92,17 +85,17 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_search_function)
         {
             fragmentManager.beginTransaction().replace(R.id.content_frame, new SearchFragment()).addToBackStack(null).commit();
-            currentMenu.push(SEARCH_STACK_INDEX);
+            currentMenu.push(Constants.SEARCH_STACK_INDEX);
         }
         else if (id == R.id.nav_home_screen)
         {
             fragmentManager.beginTransaction().replace(R.id.content_frame, new HomeScreenFragment()).addToBackStack(null).commit();
-            currentMenu.push(HOME_STACK_INDEX);
+            currentMenu.push(Constants.HOME_STACK_INDEX);
         }
         else if (id == R.id.nav_music_collection)
         {
             fragmentManager.beginTransaction().replace(R.id.content_frame, new CollectionFragment()).addToBackStack(null).commit();
-            currentMenu.push(COLLECTION_STACK_INDEX);
+            currentMenu.push(Constants.COLLECTION_STACK_INDEX);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -120,15 +113,15 @@ public class MainActivity extends AppCompatActivity
         args.putString("results", results_query);
         resultsFragment.setArguments(args);
         fragmentManager.beginTransaction().replace(R.id.content_frame, resultsFragment).addToBackStack(null).commit();
-        currentMenu.push(SEARCH_STACK_INDEX);
+        currentMenu.push(Constants.SEARCH_STACK_INDEX);
     }
 
     public void goToAlbumInfo(String artist, String album, int stackIndex)
     {
         FragmentManager fragmentManager = getSupportFragmentManager();
         Bundle args = new Bundle();
-        args.putString(RetrieveApiInformationTask.JSON_ALBUM, album);
-        args.putString(RetrieveApiInformationTask.JSON_ARTIST, artist);
+        args.putString(Constants.JSON_ALBUM, album);
+        args.putString(Constants.JSON_ARTIST, artist);
         ShowAlbumInfoFragment albumInfoFragment = new ShowAlbumInfoFragment();
         albumInfoFragment.setArguments(args);
         fragmentManager.beginTransaction().replace(R.id.content_frame, albumInfoFragment).addToBackStack(null).commit();
@@ -139,7 +132,7 @@ public class MainActivity extends AppCompatActivity
     {
         FragmentManager fragmentManager = getSupportFragmentManager();
         Bundle args = new Bundle();
-        args.putString(RetrieveApiInformationTask.JSON_ARTIST, artist);
+        args.putString(Constants.JSON_ARTIST, artist);
         ShowArtistInfoFragment showArtistInfoFragment = new ShowArtistInfoFragment();
         showArtistInfoFragment.setArguments(args);
         fragmentManager.beginTransaction().replace(R.id.content_frame, showArtistInfoFragment).addToBackStack(null).commit();
@@ -150,8 +143,8 @@ public class MainActivity extends AppCompatActivity
     {
         FragmentManager fragmentManager = getSupportFragmentManager();
         Bundle args = new Bundle();
-        args.putString(RetrieveApiInformationTask.JSON_ARTIST, artist);
-        args.putString(RetrieveApiInformationTask.JSON_TRACK, track);
+        args.putString(Constants.JSON_ARTIST, artist);
+        args.putString(Constants.JSON_TRACK, track);
         ShowTrackInfoFragment showTrackInfoFragment = new ShowTrackInfoFragment();
         showTrackInfoFragment.setArguments(args);
         fragmentManager.beginTransaction().replace(R.id.content_frame, showTrackInfoFragment).addToBackStack(null).commit();
@@ -162,20 +155,20 @@ public class MainActivity extends AppCompatActivity
     {
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, new TrackCollectionFragment()).addToBackStack(null).commit();
-        currentMenu.push(COLLECTION_STACK_INDEX);
+        currentMenu.push(Constants.COLLECTION_STACK_INDEX);
     }
 
     public void goToArtistCollection()
     {
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, new ArtistCollectionFragment()).addToBackStack(null).commit();
-        currentMenu.push(COLLECTION_STACK_INDEX);
+        currentMenu.push(Constants.COLLECTION_STACK_INDEX);
     }
 
     public void goToAlbumCollection()
     {
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, new AlbumCollectionFragment()).addToBackStack(null).commit();
-        currentMenu.push(COLLECTION_STACK_INDEX);
+        currentMenu.push(Constants.COLLECTION_STACK_INDEX);
     }
 }

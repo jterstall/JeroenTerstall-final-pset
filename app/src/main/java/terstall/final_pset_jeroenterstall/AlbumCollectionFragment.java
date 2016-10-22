@@ -42,7 +42,7 @@ public class AlbumCollectionFragment extends Fragment
     private void connectDB()
     {
         db = FirebaseDatabase.getInstance();
-        ref = db.getReference(RetrieveApiInformationTask.JSON_ALBUM);
+        ref = db.getReference(Constants.JSON_ALBUM);
     }
 
     private void retrieveAlbums()
@@ -77,7 +77,7 @@ public class AlbumCollectionFragment extends Fragment
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
                 Album mAlbum = mAlbums.get(position);
-                activity.goToAlbumInfo(mAlbum.getArtist(), mAlbum.getName(), activity.COLLECTION_STACK_INDEX);
+                activity.goToAlbumInfo(mAlbum.getArtist(), mAlbum.getName(), Constants.COLLECTION_STACK_INDEX);
             }
         });
     }

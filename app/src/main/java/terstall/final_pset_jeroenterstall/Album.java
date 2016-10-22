@@ -15,7 +15,7 @@ public class Album
 
     }
 
-    public Album(String name, String artist, String tracks, String summary, String tags, String image_url, String url)
+    Album(String name, String artist, String tracks, String summary, String tags, String image_url, String url)
     {
         this.name = name;
         this.artist = artist;

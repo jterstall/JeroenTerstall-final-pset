@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,8 +33,6 @@ import java.util.concurrent.ExecutionException;
 
 public class ShowAlbumInfoFragment extends Fragment
 {
-    private static String api_key = "&api_key=09668701cd6843de7d1ebaed460ae800&format=json";
-    private static String album_url = "http://ws.audioscrobbler.com/2.0/?method=album.getInfo&";
 
     Album mAlbum;
 
@@ -59,8 +56,8 @@ public class ShowAlbumInfoFragment extends Fragment
     {
         mView = inflater.inflate(R.layout.show_album_info_layout, container, false);
         Bundle args = getArguments();
-        artist = args.getString(RetrieveApiInformationTask.JSON_ARTIST);
-        album = args.getString(RetrieveApiInformationTask.JSON_ALBUM);
+        artist = args.getString(Constants.JSON_ARTIST);
+        album = args.getString(Constants.JSON_ALBUM);
         try
         {
             retrieveAlbumData();
@@ -95,8 +92,8 @@ public class ShowAlbumInfoFragment extends Fragment
     {
         artist = URLEncoder.encode(artist, "UTF-8");
         album = URLEncoder.encode(album, "UTF-8");
-        URL url = new URL(album_url + "artist=" + artist + "&album=" + album + api_key);
-        album_data = new RetrieveApiInformationTask().execute(url).get().getJSONObject(RetrieveApiInformationTask.JSON_ALBUM);
+        URL url = new URL(Constants.GET_ALBUM_URL + "artist=" + artist + "&album=" + album + Constants.API_KEY);
+        album_data = new RetrieveApiInformationTask().execute(url).get().getJSONObject(Constants.JSON_ALBUM);
     }
 
     private void setAlbumData() throws JSONException
@@ -110,25 +107,25 @@ public class ShowAlbumInfoFragment extends Fragment
         ImageView imageView = (ImageView) mView.findViewById(R.id.album_info_image);
 
         // Set views with correct values
-        String album = (String) album_data.get(RetrieveApiInformationTask.JSON_NAME);
+        String album = (String) album_data.get(Constants.JSON_NAME);
         albumView.setText(album);
 
-        String artist = (String) album_data.get(RetrieveApiInformationTask.JSON_ARTIST);
+        String artist = (String) album_data.get(Constants.JSON_ARTIST);
         artistView.setText(artist);
 
 
         // Set summary with clickable links
         String summary = "";
-        if(album_data.has(RetrieveApiInformationTask.JSON_WIKI))
+        if(album_data.has(Constants.JSON_WIKI))
         {
-            summary = (String) album_data.getJSONObject(RetrieveApiInformationTask.JSON_WIKI).get(RetrieveApiInformationTask.JSON_SUMMARY);
+            summary = (String) album_data.getJSONObject(Constants.JSON_WIKI).get(Constants.JSON_SUMMARY);
         }
         summaryView.setClickable(true);
         summaryView.setMovementMethod(LinkMovementMethod.getInstance());
         summaryView.setText(Html.fromHtml(summary));
 
         // Then set image
-        String image_url = (String) album_data.getJSONArray(RetrieveApiInformationTask.JSON_IMAGE).getJSONObject(RetrieveApiInformationTask.JSON_IMAGE_SIZE).get(RetrieveApiInformationTask.JSON_IMAGE_URL);
+        String image_url = (String) album_data.getJSONArray(Constants.JSON_IMAGE).getJSONObject(Constants.JSON_IMAGE_SIZE).get(Constants.JSON_IMAGE_URL);
         if(!image_url.isEmpty())
         {
             Picasso.with(activity).load(image_url).into(imageView);
@@ -140,30 +137,30 @@ public class ShowAlbumInfoFragment extends Fragment
 
         // set the tracks
         String track_content = "";
-        JSONArray tracks = album_data.getJSONObject(RetrieveApiInformationTask.JSON_TRACKS).getJSONArray(RetrieveApiInformationTask.JSON_TRACK);
+        JSONArray tracks = album_data.getJSONObject(Constants.JSON_TRACKS).getJSONArray(Constants.JSON_TRACK);
         for(int i = 0; i < tracks.length(); i++)
         {
-            track_content = track_content + (i+1) + ": " + tracks.getJSONObject(i).get(RetrieveApiInformationTask.JSON_NAME) + "\n";
+            track_content = track_content + (i+1) + ": " + tracks.getJSONObject(i).get(Constants.JSON_NAME) + "\n";
         }
         tracksView.setText(track_content);
 
         // set the tags
         String tags_content = "";
-        JSONArray tags = album_data.getJSONObject(RetrieveApiInformationTask.JSON_TAGS).getJSONArray(RetrieveApiInformationTask.JSON_TAG);
+        JSONArray tags = album_data.getJSONObject(Constants.JSON_TAGS).getJSONArray(Constants.JSON_TAG);
         for(int i = 0; i < tags.length(); i++)
         {
             if(i == 0)
             {
-                tags_content = (String) tags.getJSONObject(i).get(RetrieveApiInformationTask.JSON_NAME);
+                tags_content = (String) tags.getJSONObject(i).get(Constants.JSON_NAME);
             }
             else
             {
-                tags_content = tags_content + ", " + tags.getJSONObject(i).get(RetrieveApiInformationTask.JSON_NAME);
+                tags_content = tags_content + ", " + tags.getJSONObject(i).get(Constants.JSON_NAME);
             }
         }
         tagsView.setText(tags_content);
 
-        String url = (String) album_data.get(RetrieveApiInformationTask.JSON_URL);
+        String url = (String) album_data.get(Constants.JSON_URL);
 
         mAlbum = new Album(album, artist, track_content, summary, tags_content, image_url, url);
     }
@@ -171,7 +168,7 @@ public class ShowAlbumInfoFragment extends Fragment
     private void connectDB()
     {
         db = FirebaseDatabase.getInstance();
-        ref = db.getReference(RetrieveApiInformationTask.JSON_ALBUM);
+        ref = db.getReference(Constants.JSON_ALBUM);
     }
 
     private void setDBListeners()

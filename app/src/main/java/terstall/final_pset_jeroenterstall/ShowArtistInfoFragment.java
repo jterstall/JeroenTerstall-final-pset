@@ -33,8 +33,6 @@ import java.util.concurrent.ExecutionException;
 
 public class ShowArtistInfoFragment extends Fragment
 {
-    private static String api_key = "&api_key=09668701cd6843de7d1ebaed460ae800&format=json";
-    private static String artist_url = "http://ws.audioscrobbler.com/2.0/?method=artist.getInfo&artist=";
 
     View mView;
 
@@ -57,7 +55,7 @@ public class ShowArtistInfoFragment extends Fragment
     {
         mView = inflater.inflate(R.layout.show_artist_info_layout, container, false);
         Bundle args = getArguments();
-        artist = args.getString(RetrieveApiInformationTask.JSON_ARTIST);
+        artist = args.getString(Constants.JSON_ARTIST);
         try
         {
             retrieveArtistData();
@@ -91,8 +89,8 @@ public class ShowArtistInfoFragment extends Fragment
     private void retrieveArtistData() throws MalformedURLException, ExecutionException, InterruptedException, JSONException, UnsupportedEncodingException
     {
         artist = URLEncoder.encode(artist, "UTF-8");
-        URL url = new URL(artist_url + artist + api_key);
-        artist_data = new RetrieveApiInformationTask().execute(url).get().getJSONObject(RetrieveApiInformationTask.JSON_ARTIST);
+        URL url = new URL(Constants.GET_ARTIST_URL + artist + Constants.API_KEY);
+        artist_data = new RetrieveApiInformationTask().execute(url).get().getJSONObject(Constants.JSON_ARTIST);
     }
 
     private void setArtistData() throws JSONException
@@ -104,17 +102,17 @@ public class ShowArtistInfoFragment extends Fragment
         ImageView imageView = (ImageView) mView.findViewById(R.id.artist_info_image);
 
         // Set views with correct values, first simple one liners
-        String artist = (String) artist_data.get(RetrieveApiInformationTask.JSON_NAME);
+        String artist = (String) artist_data.get(Constants.JSON_NAME);
         artistView.setText(artist);
 
         // Set summary with clickable links
-        String summary = (String) artist_data.getJSONObject(RetrieveApiInformationTask.JSON_BIO).get(RetrieveApiInformationTask.JSON_SUMMARY);
+        String summary = (String) artist_data.getJSONObject(Constants.JSON_BIO).get(Constants.JSON_SUMMARY);
         summaryView.setClickable(true);
         summaryView.setMovementMethod(LinkMovementMethod.getInstance());
         summaryView.setText(Html.fromHtml(summary));
 
         // Then set image
-        String image_url = (String) artist_data.getJSONArray(RetrieveApiInformationTask.JSON_IMAGE).getJSONObject(RetrieveApiInformationTask.JSON_IMAGE_SIZE).get(RetrieveApiInformationTask.JSON_IMAGE_URL);
+        String image_url = (String) artist_data.getJSONArray(Constants.JSON_IMAGE).getJSONObject(Constants.JSON_IMAGE_SIZE).get(Constants.JSON_IMAGE_URL);
         if(!image_url.isEmpty())
         {
             Picasso.with(activity).load(image_url).into(imageView);
@@ -126,21 +124,21 @@ public class ShowArtistInfoFragment extends Fragment
 
         // set the tags
         String tags_content = "";
-        JSONArray tags = artist_data.getJSONObject(RetrieveApiInformationTask.JSON_TAGS).getJSONArray(RetrieveApiInformationTask.JSON_TAG);
+        JSONArray tags = artist_data.getJSONObject(Constants.JSON_TAGS).getJSONArray(Constants.JSON_TAG);
         for(int i = 0; i < tags.length(); i++)
         {
             if(i == 0)
             {
-                tags_content = (String) tags.getJSONObject(i).get(RetrieveApiInformationTask.JSON_NAME);
+                tags_content = (String) tags.getJSONObject(i).get(Constants.JSON_NAME);
             }
             else
             {
-                tags_content = tags_content + ", " + tags.getJSONObject(i).get(RetrieveApiInformationTask.JSON_NAME);
+                tags_content = tags_content + ", " + tags.getJSONObject(i).get(Constants.JSON_NAME);
             }
         }
         tagsView.setText(tags_content);
 
-        String url = (String) artist_data.get(RetrieveApiInformationTask.JSON_URL);
+        String url = (String) artist_data.get(Constants.JSON_URL);
 
         mArtist = new Artist(artist, summary, tags_content, image_url, url);
 
@@ -149,7 +147,7 @@ public class ShowArtistInfoFragment extends Fragment
     private void connectDB()
     {
         db = FirebaseDatabase.getInstance();
-        ref = db.getReference(RetrieveApiInformationTask.JSON_ARTIST);
+        ref = db.getReference(Constants.JSON_ARTIST);
     }
 
     private void setDBListeners()

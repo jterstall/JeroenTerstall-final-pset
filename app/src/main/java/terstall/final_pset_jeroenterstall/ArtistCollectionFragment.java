@@ -42,7 +42,7 @@ public class ArtistCollectionFragment extends Fragment
     private void connectDB()
     {
         db = FirebaseDatabase.getInstance();
-        ref = db.getReference(RetrieveApiInformationTask.JSON_ARTIST);
+        ref = db.getReference(Constants.JSON_ARTIST);
     }
 
     private void retrieveArtists()
@@ -77,7 +77,7 @@ public class ArtistCollectionFragment extends Fragment
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
                 Artist mArtist = mArtists.get(position);
-                activity.goToArtistInfo(mArtist.getName(), activity.COLLECTION_STACK_INDEX);
+                activity.goToArtistInfo(mArtist.getName(), Constants.COLLECTION_STACK_INDEX);
             }
         });
     }

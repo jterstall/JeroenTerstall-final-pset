@@ -42,7 +42,7 @@ public class TrackCollectionFragment extends Fragment
     private void connectDB()
     {
         db = FirebaseDatabase.getInstance();
-        ref = db.getReference(RetrieveApiInformationTask.JSON_TRACK);
+        ref = db.getReference(Constants.JSON_TRACK);
     }
 
     private void retrieveTracks()
@@ -77,7 +77,7 @@ public class TrackCollectionFragment extends Fragment
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
                 Track mTrack = mTracks.get(position);
-                activity.goToTrackInfo(mTrack.getName(), mTrack.getArtist(), activity.COLLECTION_STACK_INDEX);
+                activity.goToTrackInfo(mTrack.getName(), mTrack.getArtist(), Constants.COLLECTION_STACK_INDEX);
             }
         });
 
