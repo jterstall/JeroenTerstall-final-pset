@@ -3,10 +3,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/track_collection_layout"
-    android:orientation="vertical">
-    <TextView
-        android:layout_width="wrap_content"
+    android:id="@+id/list_layout">
+    <ListView
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="TRACKS"/>
+        android:id="@+id/list">
+    </ListView>
 </RelativeLayout>

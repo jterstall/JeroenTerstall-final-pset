@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 // This class overwrites the basic adapter for a listview with images, text and a button
 
-public class QueryResultsAdapter extends BaseAdapter implements ListAdapter
+class QueryResultsAdapter extends BaseAdapter implements ListAdapter
 {
     private ArrayList<String> namelist;
     private ArrayList<String> artistlist;
@@ -23,7 +23,7 @@ public class QueryResultsAdapter extends BaseAdapter implements ListAdapter
     private Context context;
 
     // Constructor
-    public QueryResultsAdapter(Context context, ArrayList<String> namelist, ArrayList<String> artistlist, ArrayList<String> urllist)
+    QueryResultsAdapter(Context context, ArrayList<String> namelist, ArrayList<String> artistlist, ArrayList<String> urllist)
     {
         this.context = context;
         this.namelist = namelist;
@@ -57,20 +57,20 @@ public class QueryResultsAdapter extends BaseAdapter implements ListAdapter
         if(view == null)
         {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = inflater.inflate(R.layout.query_list_item, null);
+            view = inflater.inflate(R.layout.list_layout_item, null);
         }
 
         // Retrieve TextView object and change the text
-        TextView queryName = (TextView) view.findViewById(R.id.query_name);
+        TextView queryName = (TextView) view.findViewById(R.id.name);
         queryName.setText(namelist.get(position));
 
         if(artistlist.size() != 0)
         {
-            TextView queryArtist = (TextView) view.findViewById(R.id.query_artist);
+            TextView queryArtist = (TextView) view.findViewById(R.id.artist);
             queryArtist.setText(artistlist.get(position));
         }
         // Retrieve ImageView and set it with the correct image
-        ImageView queryImage = (ImageView) view.findViewById(R.id.query_image);
+        ImageView queryImage = (ImageView) view.findViewById(R.id.image);
         String image_url = urllist.get(position);
         if(image_url.isEmpty())
         {

@@ -12,8 +12,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.Stack;
 
@@ -24,9 +22,9 @@ public class MainActivity extends AppCompatActivity
     static String ARTIST_TYPE = "Artist";
     static String ALBUM_TYPE = "Album";
 
-    int SEARCH_STACK_INDEX = 1;
-    int HOME_STACK_INDEX = 0;
-    int COLLECTION_STACK_INDEX = 2;
+    static int SEARCH_STACK_INDEX = 1;
+    static int HOME_STACK_INDEX = 0;
+    static int COLLECTION_STACK_INDEX = 2;
 
     Stack<Integer> currentMenu = new Stack<>();
 
@@ -125,39 +123,39 @@ public class MainActivity extends AppCompatActivity
         currentMenu.push(SEARCH_STACK_INDEX);
     }
 
-    public void goToMusicInfo(String type, JSONObject query_result) throws JSONException
+    public void goToAlbumInfo(String artist, String album, int stackIndex)
     {
         FragmentManager fragmentManager = getSupportFragmentManager();
         Bundle args = new Bundle();
-        if(type.equals(TRACK_TYPE))
-        {
-            String track = (String) query_result.get(RetrieveApiInformationTask.JSON_NAME);
-            String artist = (String) query_result.get(RetrieveApiInformationTask.JSON_ARTIST);
-            args.putString("track", track);
-            args.putString("artist", artist);
-            ShowTrackInfoFragment trackInfoFragment = new ShowTrackInfoFragment();
-            trackInfoFragment.setArguments(args);
-            fragmentManager.beginTransaction().replace(R.id.content_frame, trackInfoFragment).addToBackStack(null).commit();
-        }
-        else if(type.equals(ARTIST_TYPE))
-        {
-            String artist = (String) query_result.get(RetrieveApiInformationTask.JSON_NAME);
-            args.putString("artist", artist);
-            ShowArtistInfoFragment artistInfoFragment = new ShowArtistInfoFragment();
-            artistInfoFragment.setArguments(args);
-            fragmentManager.beginTransaction().replace(R.id.content_frame, artistInfoFragment).addToBackStack(null).commit();
-        }
-        else if(type.equals(ALBUM_TYPE))
-        {
-            String artist = (String) query_result.get(RetrieveApiInformationTask.JSON_ARTIST);
-            String album = (String) query_result.get(RetrieveApiInformationTask.JSON_NAME);
-            args.putString("album", album);
-            args.putString("artist", artist);
-            ShowAlbumInfoFragment albumInfoFragment = new ShowAlbumInfoFragment();
-            albumInfoFragment.setArguments(args);
-            fragmentManager.beginTransaction().replace(R.id.content_frame, albumInfoFragment).addToBackStack(null).commit();
-        }
-        currentMenu.push(SEARCH_STACK_INDEX);
+        args.putString(RetrieveApiInformationTask.JSON_ALBUM, album);
+        args.putString(RetrieveApiInformationTask.JSON_ARTIST, artist);
+        ShowAlbumInfoFragment albumInfoFragment = new ShowAlbumInfoFragment();
+        albumInfoFragment.setArguments(args);
+        fragmentManager.beginTransaction().replace(R.id.content_frame, albumInfoFragment).addToBackStack(null).commit();
+        currentMenu.push(stackIndex);
+    }
+
+    public void goToArtistInfo(String artist, int stackIndex)
+    {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Bundle args = new Bundle();
+        args.putString(RetrieveApiInformationTask.JSON_ARTIST, artist);
+        ShowArtistInfoFragment showArtistInfoFragment = new ShowArtistInfoFragment();
+        showArtistInfoFragment.setArguments(args);
+        fragmentManager.beginTransaction().replace(R.id.content_frame, showArtistInfoFragment).addToBackStack(null).commit();
+        currentMenu.push(stackIndex);
+    }
+
+    public void goToTrackInfo(String track, String artist, int stackIndex)
+    {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Bundle args = new Bundle();
+        args.putString(RetrieveApiInformationTask.JSON_ARTIST, artist);
+        args.putString(RetrieveApiInformationTask.JSON_TRACK, track);
+        ShowTrackInfoFragment showTrackInfoFragment = new ShowTrackInfoFragment();
+        showTrackInfoFragment.setArguments(args);
+        fragmentManager.beginTransaction().replace(R.id.content_frame, showTrackInfoFragment).addToBackStack(null).commit();
+        currentMenu.push(stackIndex);
     }
 
     public void goToTrackCollection()

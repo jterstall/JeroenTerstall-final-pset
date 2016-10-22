@@ -37,8 +37,8 @@ public class ShowQueryResultsFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        View mView = inflater.inflate(R.layout.show_query_results_layout, container, false);
-        lv = (ListView) mView.findViewById(R.id.query_list);
+        View mView = inflater.inflate(R.layout.list_layout, container, false);
+        lv = (ListView) mView.findViewById(R.id.list);
         Bundle args = getArguments();
         type = args.getString("type");
         try
@@ -95,8 +95,23 @@ public class ShowQueryResultsFragment extends Fragment
             {
                 try
                 {
-                    JSONObject jObject = (JSONObject) results.getJSONObject(position);
-                    activity.goToMusicInfo(type, jObject);
+                    JSONObject jObject = results.getJSONObject(position);
+                    String name = (String) jObject.get(RetrieveApiInformationTask.JSON_NAME);
+                    if(type.equals(MainActivity.ARTIST_TYPE))
+                    {
+                        activity.goToArtistInfo(name, MainActivity.SEARCH_STACK_INDEX);
+
+                    }
+                    else if (type.equals(MainActivity.TRACK_TYPE))
+                    {
+                        String artist = (String) jObject.get(RetrieveApiInformationTask.JSON_ARTIST);
+                        activity.goToTrackInfo(name, artist, MainActivity.SEARCH_STACK_INDEX);
+                    }
+                    else if (type.equals(MainActivity.ALBUM_TYPE))
+                    {
+                        String artist = (String) jObject.get(RetrieveApiInformationTask.JSON_ARTIST);
+                        activity.goToAlbumInfo(artist, name, MainActivity.SEARCH_STACK_INDEX);
+                    }
                 } catch (JSONException e)
                 {
                     e.printStackTrace();

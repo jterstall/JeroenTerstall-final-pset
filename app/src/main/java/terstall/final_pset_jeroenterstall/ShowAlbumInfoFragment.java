@@ -59,8 +59,8 @@ public class ShowAlbumInfoFragment extends Fragment
     {
         mView = inflater.inflate(R.layout.show_album_info_layout, container, false);
         Bundle args = getArguments();
-        artist = args.getString("artist");
-        album = args.getString("album");
+        artist = args.getString(RetrieveApiInformationTask.JSON_ARTIST);
+        album = args.getString(RetrieveApiInformationTask.JSON_ALBUM);
         try
         {
             retrieveAlbumData();

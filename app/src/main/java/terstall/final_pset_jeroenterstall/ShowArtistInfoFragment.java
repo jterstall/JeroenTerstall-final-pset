@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -58,7 +57,7 @@ public class ShowArtistInfoFragment extends Fragment
     {
         mView = inflater.inflate(R.layout.show_artist_info_layout, container, false);
         Bundle args = getArguments();
-        artist = args.getString("artist");
+        artist = args.getString(RetrieveApiInformationTask.JSON_ARTIST);
         try
         {
             retrieveArtistData();

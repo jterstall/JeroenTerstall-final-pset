@@ -6,7 +6,6 @@ public class Track
     private String artist;
     private String summary;
     private String tags;
-    private String image_url;
     private String url;
 
     public Track()
@@ -14,24 +13,18 @@ public class Track
 
     }
 
-    public Track(String name, String artist, String summary, String tags, String image_url, String url)
+    public Track(String name, String artist, String summary, String tags, String url)
     {
         this.name = name;
         this.artist = artist;
         this.summary = summary;
         this.tags = tags;
-        this.image_url = image_url;
         this.url = url;
     }
 
     public String getArtist()
     {
         return artist;
-    }
-
-    public String getImage_url()
-    {
-        return image_url;
     }
 
     public String getName()

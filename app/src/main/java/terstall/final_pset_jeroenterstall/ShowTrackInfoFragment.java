@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -59,13 +58,13 @@ public class ShowTrackInfoFragment extends Fragment
         mView = inflater.inflate(R.layout.show_track_info_layout, container, false);
 
         Bundle args = getArguments();
-        artist = args.getString("artist");
-        track = args.getString("track");
+        artist = args.getString(RetrieveApiInformationTask.JSON_ARTIST);
+        track = args.getString(RetrieveApiInformationTask.JSON_TRACK);
 
         try
         {
-            retrieveArtistData();
-            setArtistData();
+            retrieveTrackData();
+            setTrackData();
         }
         catch (MalformedURLException | ExecutionException | JSONException | InterruptedException | UnsupportedEncodingException e)
         {
@@ -95,7 +94,7 @@ public class ShowTrackInfoFragment extends Fragment
         }
     }
 
-    private void retrieveArtistData() throws MalformedURLException, ExecutionException, InterruptedException, JSONException, UnsupportedEncodingException
+    private void retrieveTrackData() throws MalformedURLException, ExecutionException, InterruptedException, JSONException, UnsupportedEncodingException
     {
         track = URLEncoder.encode(track, "UTF-8");
         artist = URLEncoder.encode(artist, "UTF-8");
@@ -103,7 +102,7 @@ public class ShowTrackInfoFragment extends Fragment
         track_data = new RetrieveApiInformationTask().execute(url).get().getJSONObject(RetrieveApiInformationTask.JSON_TRACK);
     }
 
-    private void setArtistData() throws JSONException
+    private void setTrackData() throws JSONException
     {
         // First retrieve all views
         TextView artistView = (TextView) mView.findViewById(R.id.track_info_artist);
@@ -113,7 +112,6 @@ public class ShowTrackInfoFragment extends Fragment
         ImageView imageView = (ImageView) mView.findViewById(R.id.track_info_image);
 
         // Set views with correct values, first simple one liners
-        String image_url = "";
         imageView.setImageResource(R.drawable.no_image);
 
         String track = (String) track_data.get(RetrieveApiInformationTask.JSON_NAME);
@@ -149,10 +147,9 @@ public class ShowTrackInfoFragment extends Fragment
         summaryView.setText(Html.fromHtml(summary));
 
         String url = (String) track_data.get(RetrieveApiInformationTask.JSON_URL);
-        System.out.println(url);
 
         // Create Track Object
-        mTrack = new Track(track, artist, summary, tags_content, image_url, url);
+        mTrack = new Track(track, artist, summary, tags_content, url);
     }
 
     private void connectDB()
