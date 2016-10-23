@@ -52,7 +52,6 @@ class QueryResultsAdapter extends BaseAdapter implements ListAdapter
     @Override
     public View getView(final int position, View convertView, ViewGroup parent)
     {
-        // Create a listview with custom list items made in xml
         View view = convertView;
         if(view == null)
         {
@@ -60,16 +59,18 @@ class QueryResultsAdapter extends BaseAdapter implements ListAdapter
             view = inflater.inflate(R.layout.list_layout_item, null);
         }
 
-        // Retrieve TextView object and change the text
+        // Set name of object
         TextView queryName = (TextView) view.findViewById(R.id.name);
         queryName.setText(namelist.get(position));
 
+        // Set artist name
         if(artistlist.size() != 0)
         {
             TextView queryArtist = (TextView) view.findViewById(R.id.artist);
             queryArtist.setText(artistlist.get(position));
         }
-        // Retrieve ImageView and set it with the correct image
+
+        // Set image
         ImageView queryImage = (ImageView) view.findViewById(R.id.image);
         String image_url = urllist.get(position);
         if(image_url.isEmpty())

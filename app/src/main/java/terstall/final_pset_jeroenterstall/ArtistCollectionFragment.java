@@ -27,24 +27,35 @@ public class ArtistCollectionFragment extends Fragment
     FirebaseAuth mAuth;
     DatabaseReference ref;
     MainActivity activity;
-    ListView lv;
+    View mView;
     String email;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        View mView = inflater.inflate(R.layout.list_layout, container, false);
+        mView = inflater.inflate(R.layout.list_layout, container, false);
+
+        // Clear any previous instances of the arraylist of artists
+        mArtists.clear();
+
+        // Retrieve arguments passed
         Bundle args = getArguments();
         email = args.getString(Constants.EMAIL);
+
+        // Get authentication instance
         mAuth = FirebaseAuth.getInstance();
-        lv = (ListView) mView.findViewById(R.id.list);
-        mArtists.clear();
+
+        // Connect to the database and set the correct references
         connectDB();
+
+        // Retrieve artists in user collection
         retrieveArtists();
+
         return mView;
     }
 
+    // Function to retrieve database instance and set the reference where artists are stored
     private void connectDB()
     {
         db = FirebaseDatabase.getInstance();
@@ -53,6 +64,7 @@ public class ArtistCollectionFragment extends Fragment
         ref = ref.child(Constants.JSON_ARTIST);
     }
 
+    // Function to retrieve all artists from collection from database
     private void retrieveArtists()
     {
         ref.addValueEventListener(new ValueEventListener()
@@ -60,10 +72,12 @@ public class ArtistCollectionFragment extends Fragment
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
+                // Loop over artists and add to arraylist
                 for(DataSnapshot artist : dataSnapshot.getChildren())
                 {
                     mArtists.add(artist.getValue(Artist.class));
                 }
+                // Set adapter and listener of listview with retrieved artists
                 setAdapterAndListener();
             }
 
@@ -75,10 +89,15 @@ public class ArtistCollectionFragment extends Fragment
         });
     }
 
+    // Function to set the adapter and listener of the listview with artists
     private void setAdapterAndListener()
     {
+        // Create adapter and set listview with it
+        ListView lv = (ListView) mView.findViewById(R.id.list);
         ArtistCollectionAdapter adapter = new ArtistCollectionAdapter(activity, mArtists);
         lv.setAdapter(adapter);
+
+        // Set on click listener in which a click goes to the corresponding artist's page
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override

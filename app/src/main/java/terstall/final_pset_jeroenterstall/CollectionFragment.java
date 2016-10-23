@@ -14,6 +14,8 @@ import android.widget.ListView;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+// Fragment in which the user can select to go to his/her artists, tracks or albums
+
 public class CollectionFragment extends Fragment
 {
     MainActivity activity;
@@ -24,12 +26,17 @@ public class CollectionFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         View mView = inflater.inflate(R.layout.collection_layout, container, false);
+
         ListView lv = (ListView) mView.findViewById(R.id.collection_list);
 
+        // Retrieve current user email which is the identifier of the user
         final String email = FirebaseAuth.getInstance().getCurrentUser().getEmail().replaceAll("[./#$\\[\\]]", ",");
 
+        // Set adapter
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(mView.getContext(), android.R.layout.simple_selectable_list_item, android.R.id.text1, COLLECTION_VALUES);
         lv.setAdapter(adapter);
+
+        // Set on click listener to go to the correct collection page of tracks, artists or albums
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
@@ -53,6 +60,7 @@ public class CollectionFragment extends Fragment
         return mView;
     }
 
+    // Retrieve activity which called the fragment
     @Override
     public void onAttach(Context context)
     {

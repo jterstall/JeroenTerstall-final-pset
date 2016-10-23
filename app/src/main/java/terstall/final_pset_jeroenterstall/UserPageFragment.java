@@ -21,10 +21,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+// Fragment to display user information and his/her collection
+
 public class UserPageFragment extends Fragment
 {
     MainActivity activity;
     View mView;
+
     String[] COLLECTION_VALUES = new String[] {"Tracks", "Artists", "Albums"};
 
     FirebaseDatabase db;
@@ -40,24 +43,36 @@ public class UserPageFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         mView = inflater.inflate(R.layout.user_page_layout, container, false);
+
+        // Retrieve user authentication instance
         mAuth = FirebaseAuth.getInstance();
+
+        // Retrieve passed arguments
         Bundle args = getArguments();
         String username = args.getString(Constants.USERNAME);
         final String email = args.getString(Constants.EMAIL);
         final int index = args.getInt(Constants.INDEX);
+
+        // Set title of user information page to username
         TextView user_page_title = (TextView) mView.findViewById(R.id.username);
         user_page_title.setText(username);
 
+        // Create a user object with passed arguments
         mUser = new User(email, username);
 
+        // Set flag which indicates first run
         firstClick = true;
 
+        // Connect to the database, set references and add listeners
         connectDB();
         setDBListeners();
 
+        // Populate listview with adapter
         ListView lv = (ListView) mView.findViewById(R.id.collection_list);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(mView.getContext(), android.R.layout.simple_selectable_list_item, android.R.id.text1, COLLECTION_VALUES);
         lv.setAdapter(adapter);
+
+        // Set list click listener to navigate to users collection
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
@@ -81,20 +96,7 @@ public class UserPageFragment extends Fragment
         return mView;
     }
 
-    @Override
-    public void onAttach(Context context)
-    {
-        super.onAttach(context);
-        try
-        {
-            activity = (MainActivity) this.getActivity();
-        }
-        catch(ClassCastException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
+    // Function to connect to the database and set references to storage
     private void connectDB()
     {
         db = FirebaseDatabase.getInstance();
@@ -103,6 +105,7 @@ public class UserPageFragment extends Fragment
         ref = ref.child(Constants.FOLLOWED_USERS);
     }
 
+    // Function to handle following users
     public void setDBListeners()
     {
         final ImageView follow_button = (ImageView) mView.findViewById(R.id.follow_button);
@@ -117,13 +120,16 @@ public class UserPageFragment extends Fragment
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot)
                     {
+                        // Check if user is already followed
                         if(dataSnapshot.getValue() == null)
                         {
+                            // If not and not first run, follow user and change icon state
                             if(!firstClick)
                             {
                                 childRef.setValue(mUser);
                                 follow_button.setImageResource(R.drawable.ic_favorite_black_24dp);
                             }
+                            // If not and first run, change icon state
                             else
                             {
                                 follow_button.setImageResource(R.drawable.ic_favorite_border_black_24dp);
@@ -132,11 +138,13 @@ public class UserPageFragment extends Fragment
                         }
                         else
                         {
+                            // If so and not first run, unfollow user and change icon state
                             if(!firstClick)
                             {
                                 childRef.removeValue();
                                 follow_button.setImageResource(R.drawable.ic_favorite_border_black_24dp);
                             }
+                            // If so and first run, change icon state
                             else
                             {
                                 follow_button.setImageResource(R.drawable.ic_favorite_black_24dp);
@@ -153,6 +161,22 @@ public class UserPageFragment extends Fragment
                 });
             }
         });
+        // Perform a click on first run to set add icon state correctly
         follow_button.performClick();
+    }
+
+    // Retrieve activity that fragment is attached to
+    @Override
+    public void onAttach(Context context)
+    {
+        super.onAttach(context);
+        try
+        {
+            activity = (MainActivity) this.getActivity();
+        }
+        catch(ClassCastException e)
+        {
+            e.printStackTrace();
+        }
     }
 }

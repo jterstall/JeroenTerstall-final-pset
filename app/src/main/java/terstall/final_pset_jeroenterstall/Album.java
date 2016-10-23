@@ -1,6 +1,8 @@
 package terstall.final_pset_jeroenterstall;
 
-public class Album
+// Object which represents an album
+
+class Album
 {
     private String name;
     private String artist;

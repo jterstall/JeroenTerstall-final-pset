@@ -13,6 +13,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+// Custom adapter for displaying artists in a list
+
 class ArtistCollectionAdapter extends BaseAdapter implements ListAdapter
 {
     private ArrayList<Artist> mArtists;
@@ -51,8 +53,10 @@ class ArtistCollectionAdapter extends BaseAdapter implements ListAdapter
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = inflater.inflate(R.layout.list_layout_item, null);
         }
+        // Retrieve current artist object
         Artist mArtist = mArtists.get(position);
 
+        // Set imageview with artist image
         ImageView image = (ImageView) view.findViewById(R.id.image);
         String image_url = mArtist.getImage_url();
         if(image_url.trim().length() != 0)
@@ -60,6 +64,7 @@ class ArtistCollectionAdapter extends BaseAdapter implements ListAdapter
             Picasso.with(context).load(image_url).into(image);
         }
 
+        // Set textview with artist name
         TextView name = (TextView) view.findViewById(R.id.name);
         name.setText(mArtist.getName());
 

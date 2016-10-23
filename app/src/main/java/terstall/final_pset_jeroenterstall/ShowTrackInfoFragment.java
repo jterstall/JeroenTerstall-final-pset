@@ -34,36 +34,37 @@ import java.util.concurrent.ExecutionException;
 public class ShowTrackInfoFragment extends Fragment
 {
     FirebaseAuth mAuth;
-
-    Track mTrack;
-
-    boolean firstClick;
-
-    View mView;
-
-    JSONObject track_data;
+    FirebaseDatabase db;
+    DatabaseReference ref;
 
     MainActivity activity;
+    View mView;
+
+    Track mTrack;
+    JSONObject track_data;
 
     String track;
     String artist;
 
-    FirebaseDatabase db;
-    DatabaseReference ref;
+    boolean firstClick;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         mView = inflater.inflate(R.layout.show_track_info_layout, container, false);
+
+        // Get user authentication instance
         mAuth = FirebaseAuth.getInstance();
 
+        // Retrieve passed arguments
         Bundle args = getArguments();
         artist = args.getString(Constants.JSON_ARTIST);
         track = args.getString(Constants.JSON_TRACK);
 
         try
         {
+            // Retrieve track data and set views with it
             retrieveTrackData();
             setTrackData();
         }
@@ -71,30 +72,20 @@ public class ShowTrackInfoFragment extends Fragment
         {
             e.printStackTrace();
         }
+
+        // Connect to database and set references to storage
         connectDB();
 
         // Flag for setting image resource on first run
         firstClick = true;
 
+        // Set listeners
         setDBListeners();
+
         return mView;
     }
 
-    // Retrieve main activity if fragment is attached to call functions from main activity
-    @Override
-    public void onAttach(Context context)
-    {
-        super.onAttach(context);
-        try
-        {
-            activity = (MainActivity) this.getActivity();
-        }
-        catch(ClassCastException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
+    // This function calls the api and retrieves JSON from it
     private void retrieveTrackData() throws MalformedURLException, ExecutionException, InterruptedException, JSONException, UnsupportedEncodingException
     {
         track = URLEncoder.encode(track, "UTF-8");
@@ -103,25 +94,28 @@ public class ShowTrackInfoFragment extends Fragment
         track_data = new RetrieveApiInformationTask().execute(url).get().getJSONObject(Constants.JSON_TRACK);
     }
 
+    // This function sets the views with corresponding json data
     private void setTrackData() throws JSONException
     {
-        // First retrieve all views
+        // Retrieve all views
         TextView artistView = (TextView) mView.findViewById(R.id.track_info_artist);
         TextView trackView = (TextView) mView.findViewById(R.id.track_info_title);
         TextView summaryView = (TextView) mView.findViewById(R.id.track_info_summary);
         TextView tagsView = (TextView) mView.findViewById(R.id.track_info_tags);
         ImageView imageView = (ImageView) mView.findViewById(R.id.track_info_image);
 
-        // Set views with correct values, first simple one liners
+        // Set image url
         imageView.setImageResource(R.drawable.no_image);
 
+        // Set track name
         String track = (String) track_data.get(Constants.JSON_NAME);
         trackView.setText(track);
 
+        // Set artist name
         String artist = (String) track_data.getJSONObject(Constants.JSON_ARTIST).get(Constants.JSON_NAME);
         artistView.setText(artist);
 
-        // set the tags
+        // Set the tags
         String tags_content = "";
         JSONArray tags = track_data.getJSONObject(Constants.JSON_TOPTAGS).getJSONArray(Constants.JSON_TAG);
         for(int i = 0; i < tags.length(); i++)
@@ -147,12 +141,14 @@ public class ShowTrackInfoFragment extends Fragment
         summaryView.setMovementMethod(LinkMovementMethod.getInstance());
         summaryView.setText(Html.fromHtml(summary));
 
+        // Retrieve unique url, used to store track in database
         String url = (String) track_data.get(Constants.JSON_URL);
 
         // Create Track Object
         mTrack = new Track(track, artist, summary, tags_content, url);
     }
 
+    // Function to connect to the database and set correct references
     private void connectDB()
     {
         db = FirebaseDatabase.getInstance();
@@ -161,10 +157,15 @@ public class ShowTrackInfoFragment extends Fragment
         ref = ref.child(Constants.JSON_TRACK);
     }
 
+    // Set listener to change add icon state and to modify database
     private void setDBListeners()
     {
         final ImageView add = (ImageView) mView.findViewById(R.id.track_info_add);
+
+        // Create unique url id which is used as identifier to store tracks
         final String url_id = mTrack.getUrl().replaceAll("[./#$\\[\\]]", ",");
+
+        // Set listener on icon
         add.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -176,13 +177,16 @@ public class ShowTrackInfoFragment extends Fragment
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot)
                     {
+                        // Check if url already has an entry in database
                         if(dataSnapshot.getValue() == null)
                         {
+                            // If not and not first run, add to database and change icon state
                             if(!firstClick)
                             {
                                 childRef.setValue(mTrack);
                                 add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
                             }
+                            // If not and first run, change icon state
                             else
                             {
                                 add.setImageResource(R.drawable.ic_playlist_add_white_18dp);
@@ -191,11 +195,13 @@ public class ShowTrackInfoFragment extends Fragment
                         }
                         else
                         {
+                            // If it has an entry and not first run, remove from database and change icon state
                             if(!firstClick)
                             {
                                 childRef.removeValue();
                                 add.setImageResource(R.drawable.ic_playlist_add_white_18dp);
                             }
+                            // If it has an entry and first run, change icon state
                             else
                             {
                                 add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
@@ -207,11 +213,26 @@ public class ShowTrackInfoFragment extends Fragment
                     @Override
                     public void onCancelled(DatabaseError databaseError)
                     {
-                        System.out.println("CANCELLED");
+
                     }
                 });
             }
         });
         add.performClick();
+    }
+
+    // Retrieve main activity if fragment is attached to call functions from main activity
+    @Override
+    public void onAttach(Context context)
+    {
+        super.onAttach(context);
+        try
+        {
+            activity = (MainActivity) this.getActivity();
+        }
+        catch(ClassCastException e)
+        {
+            e.printStackTrace();
+        }
     }
 }

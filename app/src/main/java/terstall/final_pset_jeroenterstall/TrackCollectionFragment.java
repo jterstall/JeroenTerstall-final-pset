@@ -20,32 +20,46 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
+// Fragment which shows the list of tracks the user has in his/her collection
+
 public class TrackCollectionFragment extends Fragment
 {
     ArrayList<Track> mTracks = new ArrayList<>();
+
     FirebaseDatabase db;
     FirebaseAuth mAuth;
     DatabaseReference ref;
+
     MainActivity activity;
-    ListView lv;
+    View mView;
     String email;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        View mView = inflater.inflate(R.layout.list_layout, container, false);
+        mView = inflater.inflate(R.layout.list_layout, container, false);
+
+        // Clear any previous instances of the arraylist of tracks
+        mTracks.clear();
+
+        // Retrieve passed arguments
         Bundle args = getArguments();
         email = args.getString(Constants.EMAIL);
 
+        // Retrieve user authentication instance
         mAuth = FirebaseAuth.getInstance();
-        lv = (ListView) mView.findViewById(R.id.list);
-        mTracks.clear();
+
+        // Connect to db and set references to storage
         connectDB();
+
+        // Retrieve all tracks in user collection
         retrieveTracks();
+
         return mView;
     }
 
+    // Function to connect to the database and set references to correct storage
     private void connectDB()
     {
         db = FirebaseDatabase.getInstance();
@@ -54,6 +68,7 @@ public class TrackCollectionFragment extends Fragment
         ref = ref.child(Constants.JSON_TRACK);
     }
 
+    // Function to retrieve tracks in user collection
     private void retrieveTracks()
     {
         ref.addValueEventListener(new ValueEventListener()
@@ -61,10 +76,13 @@ public class TrackCollectionFragment extends Fragment
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
+                // Loop over tracks in database and add to arraylist
                 for(DataSnapshot track : dataSnapshot.getChildren())
                 {
                     mTracks.add(track.getValue(Track.class));
                 }
+
+                // Set listener and adapter on listview
                 setAdapterAndListener();
             }
 
@@ -76,10 +94,16 @@ public class TrackCollectionFragment extends Fragment
         });
     }
 
+    // Function to populate listview and set listener
     private void setAdapterAndListener()
     {
+        ListView lv = (ListView) mView.findViewById(R.id.list);
+
+        // Create custom adapter and set to listview
         TrackCollectionAdapter adapter = new TrackCollectionAdapter(activity, mTracks);
         lv.setAdapter(adapter);
+
+        // Set listener on listview which handles navigation to track information page
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
@@ -89,7 +113,6 @@ public class TrackCollectionFragment extends Fragment
                 activity.goToTrackInfo(mTrack.getName(), mTrack.getArtist(), Constants.COLLECTION_STACK_INDEX);
             }
         });
-
     }
 
     // Retrieve main activity if fragment is attached to call functions from main activity

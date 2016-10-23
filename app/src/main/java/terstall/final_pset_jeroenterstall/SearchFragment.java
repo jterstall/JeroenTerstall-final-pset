@@ -1,4 +1,4 @@
-    package terstall.final_pset_jeroenterstall;
+package terstall.final_pset_jeroenterstall;
 
 
 import android.content.Context;
@@ -29,7 +29,9 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.concurrent.ExecutionException;
 
-    public class SearchFragment extends Fragment implements AdapterView.OnItemSelectedListener, View.OnClickListener
+// This fragment handles the search function of tracks, artists and albums
+
+public class SearchFragment extends Fragment implements AdapterView.OnItemSelectedListener, View.OnClickListener
 {
     private Spinner spinner;
     private MainActivity activity;
@@ -41,33 +43,26 @@ import java.util.concurrent.ExecutionException;
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         View mView = inflater.inflate(R.layout.search_layout, container, false);
+
+        // Retrieve views
         button = (Button) mView.findViewById(R.id.search_button);
         query = (EditText) mView.findViewById(R.id.query);
         spinner = (Spinner) mView.findViewById(R.id.search_options_spinner);
+
+        // Create an adapter to populate spinner with
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(activity, R.array.search_option, android.R.layout.simple_spinner_dropdown_item);
+
+        // Set adapter and listeners
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
         button.setOnClickListener(this);
+
+        // Enter key should perform the search action
         setEnterKeyEditText();
         return mView;
     }
 
-    // Retrieve main activity if fragment is attached to call functions from main activity
-    @Override
-    public void onAttach(Context context)
-    {
-        super.onAttach(context);
-        try
-        {
-            activity = (MainActivity) this.getActivity();
-        }
-        catch(ClassCastException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    // Change edit text hints based on spinner selected item
+    // Switches hints based on which spinner item is selected
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
     {
@@ -96,8 +91,11 @@ import java.util.concurrent.ExecutionException;
     @Override
     public void onClick(View v)
     {
+        // Retrieve input from user
         String query_input = query.getText().toString();
         query.setText("");
+
+        // Check if field was not empty
         if(query_input.trim().length() == 0)
         {
             Toast toast = Toast.makeText(activity.getBaseContext(), "Nothing filled in", Toast.LENGTH_SHORT);
@@ -107,6 +105,7 @@ import java.util.concurrent.ExecutionException;
         {
             try
             {
+                // Encode the input correctly
                 query_input = URLEncoder.encode(query_input, "UTF-8");
             }
             catch (UnsupportedEncodingException e)
@@ -115,12 +114,14 @@ import java.util.concurrent.ExecutionException;
             }
             JSONArray results = null;
             String type = null;
+            // Check which of track, artists or album needs to be found
             switch(spinner.getSelectedItemPosition())
             {
-                // Track name
+                // Tracks
                 case 0:
                     try
                     {
+                        // Create url and retrieve json from api
                         URL url = new URL(Constants.SEARCH_TRACK_URL + query_input + Constants.API_KEY);
                         JSONObject json = new RetrieveApiInformationTask().execute(url).get();
                         results = (json.getJSONObject(Constants.JSON_RESULT).getJSONObject(Constants.JSON_TRACK_MATCH).getJSONArray(Constants.JSON_TRACK));
@@ -131,10 +132,12 @@ import java.util.concurrent.ExecutionException;
                         e.printStackTrace();
                     }
                     break;
+
                 // Artist
                 case 1:
                     try
                     {
+                        // Create url and retrieve json from api
                         URL url = new URL(Constants.SEARCH_ARTIST_URL + query_input + Constants.API_KEY);
                         JSONObject json = new RetrieveApiInformationTask().execute(url).get();
                         results = json.getJSONObject(Constants.JSON_RESULT).getJSONObject(Constants.JSON_ARTIST_MATCH).getJSONArray(Constants.JSON_ARTIST);
@@ -145,10 +148,12 @@ import java.util.concurrent.ExecutionException;
                         e.printStackTrace();
                     }
                     break;
+
                 // Album
                 case 2:
                     try
                     {
+                        // Create url and retrieve json from api
                         URL url = new URL(Constants.SEARCH_ALBUM_URL + query_input + Constants.API_KEY);
                         JSONObject json = new RetrieveApiInformationTask().execute(url).get();
                         results = json.getJSONObject(Constants.JSON_RESULT).getJSONObject(Constants.JSON_ALBUM_MATCH).getJSONArray(Constants.JSON_ALBUM);
@@ -160,8 +165,11 @@ import java.util.concurrent.ExecutionException;
                     }
                     break;
             }
+            // Hide the keyboard after search button is clicked and input is processed
             InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+            // Go to results page
             activity.goToQueryResults(type, results);
         }
     }
@@ -200,4 +208,18 @@ import java.util.concurrent.ExecutionException;
         });
     }
 
+    // Retrieve main activity if fragment is attached to call functions from main activity
+    @Override
+    public void onAttach(Context context)
+    {
+        super.onAttach(context);
+        try
+        {
+            activity = (MainActivity) this.getActivity();
+        }
+        catch(ClassCastException e)
+        {
+            e.printStackTrace();
+        }
+    }
 }

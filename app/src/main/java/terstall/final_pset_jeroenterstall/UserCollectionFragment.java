@@ -23,13 +23,15 @@ import java.util.ArrayList;
 
 public class UserCollectionFragment extends Fragment
 {
-    View mView;
     ArrayList<User> mUsers = new ArrayList<>();
+
     FirebaseDatabase db;
     FirebaseAuth mAuth;
     DatabaseReference ref;
+
     MainActivity activity;
-    ListView lv;
+    View mView;
+
     String email;
 
     @Nullable
@@ -38,15 +40,23 @@ public class UserCollectionFragment extends Fragment
     {
         mView = inflater.inflate(R.layout.list_layout, container, false);
 
+        // Clear any previous instantiations of users arraylist
+        mUsers.clear();
+
+        // Get authentication instance and email of currently logged in user
         mAuth = FirebaseAuth.getInstance();
         email = mAuth.getCurrentUser().getEmail().replaceAll("[./#$\\[\\]]", ",");
-        lv = (ListView) mView.findViewById(R.id.list);
-        mUsers.clear();
+
+        // Connect to the database and set references to storage
         connectDB();
+
+        // Retrieve all users followed
         retrieveUsers();
+
         return mView;
     }
 
+    // Function to connect to the database and set references to storage
     private void connectDB()
     {
         db = FirebaseDatabase.getInstance();
@@ -55,6 +65,7 @@ public class UserCollectionFragment extends Fragment
         ref = ref.child(Constants.FOLLOWED_USERS);
     }
 
+    // Function to retrieve all users from the database
     private void retrieveUsers()
     {
         ref.addListenerForSingleValueEvent(new ValueEventListener()
@@ -62,10 +73,13 @@ public class UserCollectionFragment extends Fragment
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
+                // Loop over users and add to arraylist
                 for(DataSnapshot user : dataSnapshot.getChildren())
                 {
                     mUsers.add(user.getValue(User.class));
                 }
+
+                // Populate listview and set listener
                 setAdapterAndListener();
             }
 
@@ -77,15 +91,22 @@ public class UserCollectionFragment extends Fragment
         });
     }
 
+    // Function to populate listview and set listeners
     private void setAdapterAndListener()
     {
+        // Retrieve only the usernames from user objects
         ArrayList<String> usernames = new ArrayList<>();
         for(User user: mUsers)
         {
             usernames.add(user.getUsername());
         }
+
+        // Create adapter and set listview with it
+        ListView lv = (ListView) mView.findViewById(R.id.list);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(mView.getContext(), android.R.layout.simple_selectable_list_item, android.R.id.text1, usernames);
         lv.setAdapter(adapter);
+
+        // Set listener, which handles navigation to user information page
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override

@@ -19,6 +19,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+// This fragment handles the search function for users
+
 public class SearchUsersFragment extends Fragment implements View.OnClickListener
 {
     View mView;
@@ -26,18 +28,22 @@ public class SearchUsersFragment extends Fragment implements View.OnClickListene
     DatabaseReference ref;
     MainActivity activity;
 
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         mView = inflater.inflate(R.layout.search_users_layout, container, false);
+
+        // Connect to the database and retrieve references with storage position
         connectDB();
+
+        // Set listener on button
         Button search_button = (Button) mView.findViewById(R.id.search_button);
         search_button.setOnClickListener(this);
         return mView;
     }
 
+    // Function to connect to the database and retrieve reference
     private void connectDB()
     {
         db = FirebaseDatabase.getInstance();
@@ -47,8 +53,11 @@ public class SearchUsersFragment extends Fragment implements View.OnClickListene
     @Override
     public void onClick(View v)
     {
+        // Retrieve user input
         EditText user_query_content = (EditText) mView.findViewById(R.id.user_query);
         final String username = user_query_content.getText().toString();
+
+        // Check if field was actually filled in
         if(username.trim().length() == 0)
         {
             Toast.makeText(getContext(), "Nothing filled in", Toast.LENGTH_SHORT).show();
@@ -61,12 +70,16 @@ public class SearchUsersFragment extends Fragment implements View.OnClickListene
                 public void onDataChange(DataSnapshot dataSnapshot)
                 {
                     boolean found = false;
+                    // Loop over users
                     for(DataSnapshot childSnapshot : dataSnapshot.getChildren())
                     {
+                        // Check if username is the same as user input
                         if(childSnapshot.child(Constants.USERNAME).getValue(String.class).equals(username))
                         {
-                            String email_id = childSnapshot.child(Constants.EMAIL).getValue(String.class).replaceAll("[./#$\\[\\]]", ",");
                             found = true;
+
+                            // If it is, retrieve the email_id and go to the user information page
+                            String email_id = childSnapshot.child(Constants.EMAIL).getValue(String.class).replaceAll("[./#$\\[\\]]", ",");
                             activity.goToUserPage(username, email_id, Constants.SEARCH_USER_STACK_INDEX);
                             break;
                         }
@@ -86,6 +99,7 @@ public class SearchUsersFragment extends Fragment implements View.OnClickListene
         }
     }
 
+    // When fragment is attached, retrieve Main Activity
     @Override
     public void onAttach(Context context)
     {

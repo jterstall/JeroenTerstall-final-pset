@@ -20,6 +20,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
+// Fragment to show the list of albums in the users collection
+
 public class AlbumCollectionFragment extends Fragment
 {
     ArrayList<Album> mAlbums = new ArrayList<>();
@@ -27,24 +29,34 @@ public class AlbumCollectionFragment extends Fragment
     FirebaseAuth mAuth;
     DatabaseReference ref;
     MainActivity activity;
-    ListView lv;
+    View mView;
     String email;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        View mView = inflater.inflate(R.layout.list_layout, container, false);
+        mView = inflater.inflate(R.layout.list_layout, container, false);
+
+        // Clear any previously filled arraylists
+        mAlbums.clear();
+
+        // Retrieve passed arguments
         Bundle args = getArguments();
         email = args.getString(Constants.EMAIL);
+
+        // Get current authentication instance from firebase
         mAuth = FirebaseAuth.getInstance();
-        lv = (ListView) mView.findViewById(R.id.list);
-        mAlbums.clear();
+
+        // Connect to the database and retrieve correct references
         connectDB();
+
+        // Retrieve albums in collection
         retrieveAlbums();
         return mView;
     }
 
+    // Function to connect to the database and retrieve the correct references to the place albums are stored
     private void connectDB()
     {
         db = FirebaseDatabase.getInstance();
@@ -53,17 +65,20 @@ public class AlbumCollectionFragment extends Fragment
         ref = ref.child(Constants.JSON_ALBUM);
     }
 
+    // From database references, retrieve all albums stored
     private void retrieveAlbums()
     {
-        ref.addValueEventListener(new ValueEventListener()
+        ref.addListenerForSingleValueEvent(new ValueEventListener()
         {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
+                // Loop over albums and add to the arraylist
                 for(DataSnapshot album : dataSnapshot.getChildren())
                 {
                     mAlbums.add(album.getValue(Album.class));
                 }
+                // Set the adapter and listener to the listview with retrieved collection of albums
                 setAdapterAndListener();
             }
 
@@ -75,10 +90,15 @@ public class AlbumCollectionFragment extends Fragment
         });
     }
 
+    // Function to set the listviews adapter and listener
     private void setAdapterAndListener()
     {
+        // Retrieve listview, create adapter and set it
+        ListView lv = (ListView) mView.findViewById(R.id.list);
         AlbumCollectionAdapter adapter = new AlbumCollectionAdapter(activity, mAlbums);
         lv.setAdapter(adapter);
+
+        // Listen for clicks to go to the album info page of the album clicked
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override

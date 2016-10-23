@@ -13,6 +13,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+// Adapter for displaying albums in a listview
+
 class AlbumCollectionAdapter extends BaseAdapter implements ListAdapter
 {
     private ArrayList<Album> mAlbums;
@@ -51,8 +53,10 @@ class AlbumCollectionAdapter extends BaseAdapter implements ListAdapter
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = inflater.inflate(R.layout.list_layout_item, null);
         }
+        // Get current album
         Album mAlbum = mAlbums.get(position);
 
+        // Load in album image
         ImageView image = (ImageView) view.findViewById(R.id.image);
         String image_url = mAlbum.getImage_url();
         if(image_url.trim().length() != 0)
@@ -60,6 +64,7 @@ class AlbumCollectionAdapter extends BaseAdapter implements ListAdapter
             Picasso.with(context).load(image_url).into(image);
         }
 
+        // Set textviews with correct values
         TextView name = (TextView) view.findViewById(R.id.name);
         name.setText(mAlbum.getName());
 

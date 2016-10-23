@@ -1,6 +1,8 @@
 package terstall.final_pset_jeroenterstall;
 
-public class Artist
+// Object which represents an artist
+
+class Artist
 {
     private String name;
     private String summary;
@@ -13,7 +15,7 @@ public class Artist
 
     }
 
-    public Artist(String name, String summary, String tags, String image_url, String url)
+    Artist(String name, String summary, String tags, String image_url, String url)
     {
         this.name = name;
         this.summary = summary;

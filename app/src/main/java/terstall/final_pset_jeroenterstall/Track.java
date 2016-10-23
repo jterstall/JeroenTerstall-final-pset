@@ -1,6 +1,8 @@
 package terstall.final_pset_jeroenterstall;
 
-public class Track
+// Simple object which represents a track
+
+class Track
 {
     private String name;
     private String artist;
@@ -13,7 +15,7 @@ public class Track
 
     }
 
-    public Track(String name, String artist, String summary, String tags, String url)
+    Track(String name, String artist, String summary, String tags, String url)
     {
         this.name = name;
         this.artist = artist;

@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+// Adapter to populate listview with tracks
+
 class TrackCollectionAdapter extends BaseAdapter implements ListAdapter
 {
     private ArrayList<Track> mTracks;
@@ -48,11 +50,15 @@ class TrackCollectionAdapter extends BaseAdapter implements ListAdapter
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = inflater.inflate(R.layout.list_layout_item, null);
         }
+
+        // Get current track
         Track mTrack = mTracks.get(position);
 
+        // Set textview with name of track
         TextView name = (TextView) view.findViewById(R.id.name);
         name.setText(mTrack.getName());
 
+        // Set textview with name of artist
         TextView artist = (TextView) view.findViewById(R.id.artist);
         artist.setText(mTrack.getArtist());
 

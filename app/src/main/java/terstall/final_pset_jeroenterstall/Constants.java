@@ -1,5 +1,7 @@
 package terstall.final_pset_jeroenterstall;
 
+// Class consisting of constants used in the application
+
 class Constants
 {
     // Json names
@@ -23,7 +25,7 @@ class Constants
     static final String JSON_ARTIST = "artist";
     static final int JSON_IMAGE_SIZE = 2; // 0 = small, 1 = medium, 2 = large, 3 = extra large
 
-    // Types of storage
+    // Types of collections
     static String TRACK_TYPE = "Track";
     static String ARTIST_TYPE = "Artist";
     static String ALBUM_TYPE = "Album";

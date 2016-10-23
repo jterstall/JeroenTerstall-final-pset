@@ -31,37 +31,39 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.concurrent.ExecutionException;
 
+// This fragment shows the artist information page
 
 public class ShowArtistInfoFragment extends Fragment
 {
     FirebaseAuth mAuth;
-
-    View mView;
-
-    boolean firstClick;
-
-    JSONObject artist_data;
-
-    MainActivity activity;
-
-    String artist;
-
     FirebaseDatabase db;
     DatabaseReference ref;
 
+    MainActivity activity;
+    View mView;
+
     Artist mArtist;
+    JSONObject artist_data;
+
+    String artist;
+    boolean firstClick;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         mView = inflater.inflate(R.layout.show_artist_info_layout, container, false);
+
+        // Get user authentication intance
         mAuth = FirebaseAuth.getInstance();
 
+        // Retrieve arguments passed
         Bundle args = getArguments();
         artist = args.getString(Constants.JSON_ARTIST);
+
         try
         {
+            // Retrieve artist data and set views with it
             retrieveArtistData();
             setArtistData();
         }
@@ -69,27 +71,20 @@ public class ShowArtistInfoFragment extends Fragment
         {
             e.printStackTrace();
         }
+
+        // Connect to the database and set references
         connectDB();
+
+        // Flag to check for first run
         firstClick = true;
+
+        // Set listeners
         setDBListeners();
+
         return mView;
     }
 
-    // Retrieve main activity if fragment is attached to call functions from main activity
-    @Override
-    public void onAttach(Context context)
-    {
-        super.onAttach(context);
-        try
-        {
-            activity = (MainActivity) this.getActivity();
-        }
-        catch(ClassCastException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
+    // Retrieve json from lastfm api about artist
     private void retrieveArtistData() throws MalformedURLException, ExecutionException, InterruptedException, JSONException, UnsupportedEncodingException
     {
         artist = URLEncoder.encode(artist, "UTF-8");
@@ -97,6 +92,7 @@ public class ShowArtistInfoFragment extends Fragment
         artist_data = new RetrieveApiInformationTask().execute(url).get().getJSONObject(Constants.JSON_ARTIST);
     }
 
+    // This function sets all view with correct json results
     private void setArtistData() throws JSONException
     {
         // First retrieve all views
@@ -105,7 +101,7 @@ public class ShowArtistInfoFragment extends Fragment
         TextView tagsView = (TextView) mView.findViewById(R.id.artist_info_tags);
         ImageView imageView = (ImageView) mView.findViewById(R.id.artist_info_image);
 
-        // Set views with correct values, first simple one liners
+        // SSet artist name
         String artist = (String) artist_data.get(Constants.JSON_NAME);
         artistView.setText(artist);
 
@@ -115,7 +111,7 @@ public class ShowArtistInfoFragment extends Fragment
         summaryView.setMovementMethod(LinkMovementMethod.getInstance());
         summaryView.setText(Html.fromHtml(summary));
 
-        // Then set image
+        // Set image of artist
         String image_url = (String) artist_data.getJSONArray(Constants.JSON_IMAGE).getJSONObject(Constants.JSON_IMAGE_SIZE).get(Constants.JSON_IMAGE_URL);
         if(!image_url.isEmpty())
         {
@@ -126,7 +122,7 @@ public class ShowArtistInfoFragment extends Fragment
             imageView.setImageResource(R.drawable.no_image);
         }
 
-        // set the tags
+        // Set the tags
         String tags_content = "";
         JSONArray tags = artist_data.getJSONObject(Constants.JSON_TAGS).getJSONArray(Constants.JSON_TAG);
         for(int i = 0; i < tags.length(); i++)
@@ -142,12 +138,14 @@ public class ShowArtistInfoFragment extends Fragment
         }
         tagsView.setText(tags_content);
 
+        // Retrieve url to lastfm website which is an unique id we use to identify artist in database
         String url = (String) artist_data.get(Constants.JSON_URL);
 
+        // Create artist with data retrieved
         mArtist = new Artist(artist, summary, tags_content, image_url, url);
-
     }
 
+    // Function to connect to the database and set the correct storage reference
     private void connectDB()
     {
         db = FirebaseDatabase.getInstance();
@@ -156,10 +154,15 @@ public class ShowArtistInfoFragment extends Fragment
         ref = ref.child(Constants.JSON_ARTIST);
     }
 
+    // Set listeners to handle database entries and add icon state
     private void setDBListeners()
     {
         final ImageView add = (ImageView) mView.findViewById(R.id.artist_info_add);
+
+        // Retrieve unique url and replace illegal characters with comma
         final String url_id = mArtist.getUrl().replaceAll("[./#$\\[\\]]", ",");
+
+        // Listen for clicks on add icon
         add.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -171,13 +174,16 @@ public class ShowArtistInfoFragment extends Fragment
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot)
                     {
+                        // Check if url has an entry in database
                         if(dataSnapshot.getValue() == null)
                         {
+                            // If not and not first run, add to database and set icon state
                             if(!firstClick)
                             {
                                 childRef.setValue(mArtist);
                                 add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
                             }
+                            // If not and first run, only change icon state
                             else
                             {
                                 add.setImageResource(R.drawable.ic_playlist_add_white_18dp);
@@ -186,11 +192,13 @@ public class ShowArtistInfoFragment extends Fragment
                         }
                         else
                         {
+                            // If it has an entry and not first run, remove from database and alter icon state
                             if(!firstClick)
                             {
                                 childRef.removeValue();
                                 add.setImageResource(R.drawable.ic_playlist_add_white_18dp);
                             }
+                            // If it has an entry and first run, only alter add icon state
                             else
                             {
                                 add.setImageResource(R.drawable.ic_playlist_add_check_white_18dp);
@@ -202,11 +210,27 @@ public class ShowArtistInfoFragment extends Fragment
                     @Override
                     public void onCancelled(DatabaseError databaseError)
                     {
-                        System.out.println("CANCELLED");
+
                     }
                 });
             }
         });
+        // Perform a click to correctly set add icon state
         add.performClick();
+    }
+
+    // Retrieve main activity if fragment is attached to call functions from main activity
+    @Override
+    public void onAttach(Context context)
+    {
+        super.onAttach(context);
+        try
+        {
+            activity = (MainActivity) this.getActivity();
+        }
+        catch(ClassCastException e)
+        {
+            e.printStackTrace();
+        }
     }
 }

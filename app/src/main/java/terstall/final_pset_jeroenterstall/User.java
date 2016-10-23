@@ -1,5 +1,7 @@
 package terstall.final_pset_jeroenterstall;
 
+// Simple user object
+
 class User
 {
     private String email;

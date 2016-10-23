@@ -1,5 +1,6 @@
 package terstall.final_pset_jeroenterstall;
 
+// Simple home screen fragment
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,7 +15,6 @@ public class HomeScreenFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        View mView = inflater.inflate(R.layout.home_screen_layout, container, false);
-        return mView;
+        return inflater.inflate(R.layout.home_screen_layout, container, false);
     }
 }

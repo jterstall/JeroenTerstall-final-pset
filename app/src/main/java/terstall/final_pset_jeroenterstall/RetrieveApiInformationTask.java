@@ -10,10 +10,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 // This class handles the retrieving of json from the API
-// Also stores the JSON tags
+
 class RetrieveApiInformationTask extends AsyncTask<URL, Void, JSONObject>
 {
-
     @Override
     protected JSONObject doInBackground(URL... params)
     {
@@ -52,10 +51,10 @@ class RetrieveApiInformationTask extends AsyncTask<URL, Void, JSONObject>
             return null;
         }
     }
+
     @Override
     protected void onPostExecute(JSONObject result)
     {
-        // Return result
         super.onPostExecute(result);
     }
 }
