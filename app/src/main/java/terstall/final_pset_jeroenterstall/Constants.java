@@ -29,9 +29,12 @@ class Constants
     static String ALBUM_TYPE = "Album";
 
     // Indices for stack of navigation bar
-    static int SEARCH_STACK_INDEX = 1;
+    static String INDEX = "index";
     static int HOME_STACK_INDEX = 0;
-    static int COLLECTION_STACK_INDEX = 2;
+    static int SEARCH_STACK_INDEX = 1;
+    static int SEARCH_USER_STACK_INDEX = 2;
+    static int COLLECTION_STACK_INDEX = 3;
+    static int USER_COLLECTION_STACK_INDEX = 4;
 
     // API KEY for last fm api and URLs to use the api
     static String API_KEY = "&api_key=09668701cd6843de7d1ebaed460ae800&format=json";
@@ -44,4 +47,7 @@ class Constants
 
     // Reference for database users category
     static String USERS = "users";
+    static String USERNAME = "username";
+    static String EMAIL = "email";
+    static String FOLLOWED_USERS = "followed";
 }

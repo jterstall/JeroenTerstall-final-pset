@@ -11,9 +11,17 @@
             android:icon="@drawable/ic_menu_search"
             android:title="@string/nav_search"/>
         <item
+            android:id="@+id/nav_user_search_function"
+            android:icon="@drawable/ic_menu_search"
+            android:title="@string/search_users"/>
+        <item
             android:id="@+id/nav_music_collection"
             android:icon="@drawable/ic_audiotrack_black_24dp"
             android:title="@string/nav_collection"/>
+        <item
+            android:id="@+id/nav_user_collection"
+            android:icon="@drawable/ic_favorite_black_24dp"
+            android:title="@string/followed_users"/>
     </group>
 
 </menu>

@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,6 +33,7 @@ import java.util.concurrent.ExecutionException;
 
 public class ShowTrackInfoFragment extends Fragment
 {
+    FirebaseAuth mAuth;
 
     Track mTrack;
 
@@ -54,6 +56,7 @@ public class ShowTrackInfoFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         mView = inflater.inflate(R.layout.show_track_info_layout, container, false);
+        mAuth = FirebaseAuth.getInstance();
 
         Bundle args = getArguments();
         artist = args.getString(Constants.JSON_ARTIST);
@@ -153,7 +156,9 @@ public class ShowTrackInfoFragment extends Fragment
     private void connectDB()
     {
         db = FirebaseDatabase.getInstance();
-        ref = db.getReference(Constants.JSON_TRACK);
+        ref = db.getReference(Constants.USERS);
+        ref = ref.child(mAuth.getCurrentUser().getEmail().replaceAll("[./#$\\[\\]]", ","));
+        ref = ref.child(Constants.JSON_TRACK);
     }
 
     private void setDBListeners()

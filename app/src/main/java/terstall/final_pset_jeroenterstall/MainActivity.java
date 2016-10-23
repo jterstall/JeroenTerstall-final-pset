@@ -12,9 +12,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -52,7 +49,6 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         mAuth = FirebaseAuth.getInstance();
-        mAuth.signOut();
         mAuthListener = new FirebaseAuth.AuthStateListener()
         {
             @Override
@@ -78,8 +74,6 @@ public class MainActivity extends AppCompatActivity
 
             }
         };
-
-
     }
 
     public void onStart()
@@ -95,21 +89,6 @@ public class MainActivity extends AppCompatActivity
         {
             mAuth.removeAuthStateListener(mAuthListener);
         }
-    }
-
-    private void signIn(String email, String password)
-    {
-        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>()
-        {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task)
-            {
-                if(!task.isSuccessful())
-                {
-                    Toast.makeText(MainActivity.this, "FAILED SIGN IN", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
     }
 
     @Override
@@ -155,6 +134,16 @@ public class MainActivity extends AppCompatActivity
         {
             fragmentManager.beginTransaction().replace(R.id.content_frame, new CollectionFragment()).addToBackStack(null).commit();
             currentMenu.push(Constants.COLLECTION_STACK_INDEX);
+        }
+        else if (id == R.id.nav_user_search_function)
+        {
+            fragmentManager.beginTransaction().replace(R.id.content_frame, new SearchUsersFragment()).addToBackStack(null).commit();
+            currentMenu.push(Constants.SEARCH_USER_STACK_INDEX);
+        }
+        else if (id == R.id.nav_user_collection)
+        {
+            fragmentManager.beginTransaction().replace(R.id.content_frame, new UserCollectionFragment()).addToBackStack(null).commit();
+            currentMenu.push(Constants.USER_COLLECTION_STACK_INDEX);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -210,25 +199,37 @@ public class MainActivity extends AppCompatActivity
         currentMenu.push(stackIndex);
     }
 
-    public void goToTrackCollection()
+    public void goToTrackCollection(String email, int index)
     {
+        Bundle args = new Bundle();
+        args.putString(Constants.EMAIL, email);
+        TrackCollectionFragment trackCollectionFragment = new TrackCollectionFragment();
+        trackCollectionFragment.setArguments(args);
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, new TrackCollectionFragment()).addToBackStack(null).commit();
-        currentMenu.push(Constants.COLLECTION_STACK_INDEX);
+        fragmentManager.beginTransaction().replace(R.id.content_frame, trackCollectionFragment).addToBackStack(null).commit();
+        currentMenu.push(index);
     }
 
-    public void goToArtistCollection()
+    public void goToArtistCollection(String email, int index)
     {
+        Bundle args = new Bundle();
+        args.putString(Constants.EMAIL, email);
+        ArtistCollectionFragment artistCollectionFragment = new ArtistCollectionFragment();
+        artistCollectionFragment.setArguments(args);
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, new ArtistCollectionFragment()).addToBackStack(null).commit();
-        currentMenu.push(Constants.COLLECTION_STACK_INDEX);
+        fragmentManager.beginTransaction().replace(R.id.content_frame, artistCollectionFragment).addToBackStack(null).commit();
+        currentMenu.push(index);
     }
 
-    public void goToAlbumCollection()
+    public void goToAlbumCollection(String email, int index)
     {
+        Bundle args = new Bundle();
+        args.putString(Constants.EMAIL, email);
+        AlbumCollectionFragment albumCollectionFragment = new AlbumCollectionFragment();
+        albumCollectionFragment.setArguments(args);
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, new AlbumCollectionFragment()).addToBackStack(null).commit();
-        currentMenu.push(Constants.COLLECTION_STACK_INDEX);
+        fragmentManager.beginTransaction().replace(R.id.content_frame, albumCollectionFragment).addToBackStack(null).commit();
+        currentMenu.push(index);
     }
 
     public void goToRegisterPage()
@@ -236,5 +237,19 @@ public class MainActivity extends AppCompatActivity
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, new RegisterFragment()).addToBackStack(null).commit();
         currentMenu.push(Constants.HOME_STACK_INDEX);
+    }
+
+    public void goToUserPage(String username, String email, int index)
+    {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Bundle args = new Bundle();
+        args.putString(Constants.USERNAME, username);
+        args.putString(Constants.EMAIL, email);
+        args.putInt(Constants.INDEX, index);
+        UserPageFragment userPageFragment = new UserPageFragment();
+        userPageFragment.setArguments(args);
+        fragmentManager.beginTransaction().replace(R.id.content_frame, userPageFragment).addToBackStack(null).commit();
+        currentMenu.push(index);
+
     }
 }

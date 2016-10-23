@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -63,14 +62,20 @@ public class RegisterFragment extends Fragment implements View.OnClickListener
         EditText username_content = (EditText) mView.findViewById(R.id.username_register);
         EditText email_content = (EditText) mView.findViewById(R.id.email_register);
         EditText password_content = (EditText) mView.findViewById(R.id.password_register);
+        EditText password_check_content = (EditText) mView.findViewById(R.id.password_check);
 
         String username = username_content.getText().toString();
         String email = email_content.getText().toString();
         String password = password_content.getText().toString();
+        String password_check = password_check_content.getText().toString();
 
-        if(username.trim().length() == 0 || email.trim().length() == 0 || password.trim().length() == 0)
+        if(username.trim().length() == 0 || email.trim().length() == 0 || password.trim().length() == 0 || password_check.trim().length() == 0)
         {
             Toast.makeText(getContext(), "One of the fields was not filled in correctly", Toast.LENGTH_SHORT).show();
+        }
+        else if (!(password.equals(password_check)))
+        {
+            Toast.makeText(getContext(), "Passwords do not match", Toast.LENGTH_SHORT).show();
         }
         else
         {
@@ -92,21 +97,9 @@ public class RegisterFragment extends Fragment implements View.OnClickListener
                 }
                 else
                 {
-                    final DatabaseReference childRef = ref.child(username);
-                    childRef.addListenerForSingleValueEvent(new ValueEventListener()
-                    {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot)
-                        {
-                            childRef.setValue(username);
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError)
-                        {
-
-                        }
-                    });
+                    final DatabaseReference childRef = ref.child(email.replaceAll("[./#$\\[\\]]", ","));
+                    User mUser = new User(email, username);
+                    childRef.setValue(mUser);
                 }
             }
         });

@@ -12,6 +12,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 public class CollectionFragment extends Fragment
 {
     MainActivity activity;
@@ -23,6 +25,9 @@ public class CollectionFragment extends Fragment
     {
         View mView = inflater.inflate(R.layout.collection_layout, container, false);
         ListView lv = (ListView) mView.findViewById(R.id.collection_list);
+
+        final String email = FirebaseAuth.getInstance().getCurrentUser().getEmail().replaceAll("[./#$\\[\\]]", ",");
+
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(mView.getContext(), android.R.layout.simple_selectable_list_item, android.R.id.text1, COLLECTION_VALUES);
         lv.setAdapter(adapter);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -33,13 +38,13 @@ public class CollectionFragment extends Fragment
                 switch (position)
                 {
                     case 0:
-                        activity.goToTrackCollection();
+                        activity.goToTrackCollection(email, Constants.COLLECTION_STACK_INDEX);
                         break;
                     case 1:
-                        activity.goToArtistCollection();
+                        activity.goToArtistCollection(email, Constants.COLLECTION_STACK_INDEX);
                         break;
                     case 2:
-                        activity.goToAlbumCollection();
+                        activity.goToAlbumCollection(email, Constants.COLLECTION_STACK_INDEX);
                         break;
                 }
             }

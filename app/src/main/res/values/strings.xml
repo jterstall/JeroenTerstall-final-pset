@@ -19,6 +19,12 @@
     <string name="email_required">Email (Required)</string>
     <string name="password_required">Password (Required)</string>
     <string name="register">Register</string>
+    <string name="repeat_password">Repeat Password</string>
+    <string name="username">Username</string>
+    <string name="followed_users">Followed Users</string>
+    <string name="search_users">Search Users</string>
+    <string name="title">Music Collection</string>
+    <string name="my_name">Jeroen Terstall</string>
     <string-array name="search_option">
         <item>Track</item>
         <item>Artist</item>

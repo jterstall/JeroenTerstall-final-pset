@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -23,15 +24,20 @@ public class AlbumCollectionFragment extends Fragment
 {
     ArrayList<Album> mAlbums = new ArrayList<>();
     FirebaseDatabase db;
+    FirebaseAuth mAuth;
     DatabaseReference ref;
     MainActivity activity;
     ListView lv;
+    String email;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         View mView = inflater.inflate(R.layout.list_layout, container, false);
+        Bundle args = getArguments();
+        email = args.getString(Constants.EMAIL);
+        mAuth = FirebaseAuth.getInstance();
         lv = (ListView) mView.findViewById(R.id.list);
         mAlbums.clear();
         connectDB();
@@ -42,7 +48,9 @@ public class AlbumCollectionFragment extends Fragment
     private void connectDB()
     {
         db = FirebaseDatabase.getInstance();
-        ref = db.getReference(Constants.JSON_ALBUM);
+        ref = db.getReference(Constants.USERS);
+        ref = ref.child(email);
+        ref = ref.child(Constants.JSON_ALBUM);
     }
 
     private void retrieveAlbums()

@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,9 +21,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class TrackCollectionFragment extends Fragment
+public class UserCollectionFragment extends Fragment
 {
-    ArrayList<Track> mTracks = new ArrayList<>();
+    View mView;
+    ArrayList<User> mUsers = new ArrayList<>();
     FirebaseDatabase db;
     FirebaseAuth mAuth;
     DatabaseReference ref;
@@ -34,15 +36,14 @@ public class TrackCollectionFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        View mView = inflater.inflate(R.layout.list_layout, container, false);
-        Bundle args = getArguments();
-        email = args.getString(Constants.EMAIL);
+        mView = inflater.inflate(R.layout.list_layout, container, false);
 
         mAuth = FirebaseAuth.getInstance();
+        email = mAuth.getCurrentUser().getEmail().replaceAll("[./#$\\[\\]]", ",");
         lv = (ListView) mView.findViewById(R.id.list);
-        mTracks.clear();
+        mUsers.clear();
         connectDB();
-        retrieveTracks();
+        retrieveUsers();
         return mView;
     }
 
@@ -51,19 +52,19 @@ public class TrackCollectionFragment extends Fragment
         db = FirebaseDatabase.getInstance();
         ref = db.getReference(Constants.USERS);
         ref = ref.child(email);
-        ref = ref.child(Constants.JSON_TRACK);
+        ref = ref.child(Constants.FOLLOWED_USERS);
     }
 
-    private void retrieveTracks()
+    private void retrieveUsers()
     {
-        ref.addValueEventListener(new ValueEventListener()
+        ref.addListenerForSingleValueEvent(new ValueEventListener()
         {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
-                for(DataSnapshot track : dataSnapshot.getChildren())
+                for(DataSnapshot user : dataSnapshot.getChildren())
                 {
-                    mTracks.add(track.getValue(Track.class));
+                    mUsers.add(user.getValue(User.class));
                 }
                 setAdapterAndListener();
             }
@@ -78,18 +79,22 @@ public class TrackCollectionFragment extends Fragment
 
     private void setAdapterAndListener()
     {
-        TrackCollectionAdapter adapter = new TrackCollectionAdapter(activity, mTracks);
+        ArrayList<String> usernames = new ArrayList<>();
+        for(User user: mUsers)
+        {
+            usernames.add(user.getUsername());
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(mView.getContext(), android.R.layout.simple_selectable_list_item, android.R.id.text1, usernames);
         lv.setAdapter(adapter);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
-                Track mTrack = mTracks.get(position);
-                activity.goToTrackInfo(mTrack.getName(), mTrack.getArtist(), Constants.COLLECTION_STACK_INDEX);
+                User mUser = mUsers.get(position);
+                activity.goToUserPage(mUser.getUsername(), mUser.getEmail(), Constants.USER_COLLECTION_STACK_INDEX);
             }
         });
-
     }
 
     // Retrieve main activity if fragment is attached to call functions from main activity
