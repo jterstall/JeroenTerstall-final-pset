@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 {
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    boolean flag;
 
     // Stack used to keep track of current menu in side bar
     Stack<Integer> currentMenu = new Stack<>();
@@ -61,9 +62,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth)
             {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-
                 // When no previous fragments are initialized do this
-                if(savedInstanceState == null)
+                if(getSupportFragmentManager().getFragments() == null)
                 {
                     // If user is logged in
                     if (user != null)
