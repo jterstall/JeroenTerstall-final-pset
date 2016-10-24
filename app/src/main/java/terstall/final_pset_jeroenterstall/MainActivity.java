@@ -61,35 +61,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth)
             {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                // If user is logged in
-                if(user != null)
+
+                // When no previous fragments are initialized do this
+                if(savedInstanceState == null)
                 {
-                    // Leave the navigation drawer unlocked
-                    drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                    // If user is logged in
+                    if (user != null)
+                    {
+                        // Leave the navigation drawer unlocked
+                        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 
-                    // Go to the home screen
-                    HomeScreenFragment fragment = new HomeScreenFragment();
-                    getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
+                        // Go to the home screen
+                        HomeScreenFragment fragment = new HomeScreenFragment();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
 
-                    // Add fragment menu id to the stack and set the correct navigation drawer item checked
-                    currentMenu.push(Constants.HOME_STACK_INDEX);
-                    navigationView.getMenu().getItem(Constants.HOME_STACK_INDEX).setChecked(true);
+                        // Add fragment menu id to the stack and set the correct navigation drawer item checked
+                        currentMenu.push(Constants.HOME_STACK_INDEX);
+                        navigationView.getMenu().getItem(Constants.HOME_STACK_INDEX).setChecked(true);
+                    }
+                    // If user is not logged in
+                    else
+                    {
+                        // User may not use the navigation drawer
+                        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+
+                        // Go to sign in screen
+                        SignInFragment fragment = new SignInFragment();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+                        // Add fragment menu id to the stack and set the correct navigation drawer item checked
+                        currentMenu.push(Constants.HOME_STACK_INDEX);
+                        navigationView.getMenu().getItem(Constants.HOME_STACK_INDEX).setChecked(true);
+                    }
                 }
-                // If user is not logged in
-                else
-                {
-                    // User may not use the navigation drawer
-                    drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-
-                    // Go to sign in screen
-                    SignInFragment fragment = new SignInFragment();
-                    getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
-
-                    // Add fragment menu id to the stack and set the correct navigation drawer item checked
-                    currentMenu.push(Constants.HOME_STACK_INDEX);
-                    navigationView.getMenu().getItem(Constants.HOME_STACK_INDEX).setChecked(true);
-                }
-
             }
         };
     }
@@ -111,6 +115,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    // Save menu index stack when instance is saved
+    @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable("stack", currentMenu);
+    }
+
+    // Retrieve saved menu index stack
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState)
+    {
+        super.onRestoreInstanceState(savedInstanceState);
+        currentMenu = (Stack<Integer>) savedInstanceState.getSerializable("stack");
+    }
+
     @Override
     public void onBackPressed()
     {
@@ -123,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             drawer.closeDrawer(GravityCompat.START);
         }
         // If drawer is not open but there are fragments to go back to, go to previous fragment on stack
-        else if(fragmentManager.getBackStackEntryCount() > 0)
+        else if(fragmentManager.getBackStackEntryCount() > 0 && !(currentMenu.empty()))
         {
             fragmentManager.popBackStack();
             currentMenu.pop();
